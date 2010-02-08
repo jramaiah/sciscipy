@@ -1,0 +1,19 @@
+This package create a python module called sciscipy
+It provides a link between python and scilab by defining 
+3 functions:
+
+- sciscipy.eval(sci_cmd)
+- sciscipy.read(sci_var_name)
+- sciscipy.write(sci_var_name, py_var_name)
+
+To increase the level of enjoyment, a python module 
+called scilab is also provided. This package contains a 
+class 'Scilab' that can be used to issue any valid scilab 
+command. Use it as follows:
+
+>>> from scilab import Scilab
+>>> sci = Scilab()
+>>> (any_output, ...) = sci.any_func(param1, ...)
+
+ 
+
