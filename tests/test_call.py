@@ -1,5 +1,6 @@
 import unittest
 
+from numpy.testing import assert_almost_equal
 from scilab import Scilab
 import sciscipy 
 
@@ -13,9 +14,7 @@ class test_call(unittest.TestCase):
 		spec1 = self.sci.spec([[1, 2],[3, 4]])
 		sciscipy.eval("spec1 = spec([1,2;3,4])")
 		spec2 = sciscipy.read("spec1")
-		comp = spec1 == spec2
-		print comp
-		assert(comp)
+		assert_almost_equal(spec1, spec2)
 
 	def test_mean(self):
 		""" [test_call] Testing mean
@@ -44,9 +43,7 @@ class test_call(unittest.TestCase):
 		strlength1 = self.sci.length(["3ch","5char","plenty of char"])
 		sciscipy.eval("strlength = length(['3ch','5char','plenty of char'])")
 		strlength2 = sciscipy.read("strlength")
-		comp = strlength1 == strlength2
-		print comp
-		assert(comp)
+		assert_almost_equal(strlength1, strlength2)
 
 
 

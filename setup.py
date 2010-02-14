@@ -7,10 +7,12 @@ from os.path import splitext, basename, join as pjoin
 import os, sys
 
 # This should be customized for specific instals
-common_include_base=os.path.join("/","usr", "local", "include", "scilab")
+common_include_base=os.path.join("/","usr", "include", "scilab")
 
-sci_include = [os.path.join("/", common_include_base, "core"), 
-			   os.path.join("/", common_include_base, "call_scilab")]
+sci_include = [
+		os.path.join(common_include_base, "core"), 
+	       	os.path.join(common_include_base, "call_scilab")
+	      ]
 
 if os.environ.get('SCI'):
 	common_include_base_call=os.path.join("/",os.environ.get('SCI'),"..","..","include","scilab")
@@ -19,7 +21,7 @@ if os.environ.get('SCI'):
 	sci_include.append(os.path.join("/",common_include_base_call, "call_scilab"))
 
 
-sci_lib_dir = [os.path.join("/","usr", "local", "lib", "scilab")]
+sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
 if os.environ.get('SCI'):
 	sci_lib_dir.append(os.path.join("/",os.environ.get('SCI'),"..","..","lib","scilab"))
 

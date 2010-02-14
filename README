@@ -15,6 +15,21 @@ command. Use it as follows:
 >>> sci = Scilab()
 >>> (any_output, ...) = sci.any_func(param1, ...)
 
- 
+INSTALL
+--------
 
-TO DO
+$ ./setup build
+$ ./setup install
+
+RUN
+---
+
+the LD_LIBRARY_PATH environment variable must be set, for instance to
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/:/usr/lib/jvm/java-6-openjdk//jre/lib/amd64/server/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/native_threads/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/scilab
+export SCI=/usr/share/scilab
+
+See http://www.scilab.org/product/man/compile_and_run_call_scilab.html 
+
