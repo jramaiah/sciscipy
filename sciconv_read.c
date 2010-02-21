@@ -59,6 +59,9 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
         mn = m*n ;
         array = PyArray_FromDimsAndData(1, &mn, PyArray_DOUBLE, \
                                             (char*) cxtmp); 
+
+	// TODO
+	//array = PyArray_NewFromDescr(&PyArray_Type,  )
         return array ;
     }
     

@@ -26,17 +26,28 @@
 extern int StartScilab(char *SCIpath, char *ScilabStartup,int *Stacksize);
 extern int SendScilabJob(char *job); 
 
+
 static int Initialize(void)  
 {
+	int res ;
 #ifdef _MSC_VER
-    if ( StartScilab(NULL, NULL, NULL) == FALSE )
+    res = StartScilab(NULL, NULL, NULL) == FALSE
 #else
-    if ( StartScilab(getenv("SCI"), NULL, NULL) == FALSE )
+	if (getenv("SCI") != NULL)
+    	res = StartScilab(getenv("SCI"), NULL, NULL) ;
+	else
+		{
+			char sci[sci_max_len] ;
+			res = StartScilab(get_SCI(sci), NULL, NULL) ;
+		}
 #endif
+
+	if (res == FALSE)
         return -1;
 	else
 		return 0 ;
 }
+
 /* Python interface */
 
 static PyObject *

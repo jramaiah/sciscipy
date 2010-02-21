@@ -1,6 +1,12 @@
 #include "Python.h"
 #include "util.h"
 #include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+const int sci_max_len = 1024 ;
+static const char* SCI_ETC_FILE = "/etc/sciscilab" ;
+
 
 /** Return the scilab type 
  *
@@ -73,5 +79,56 @@ PyObject* create_list(PyObject *obj)
 	PyList_SET_ITEM(new_list, 0, obj) ;	
     return new_list ;
 } ;
+
+/** Return the root directory of scilab
+
+Tries to open a file SCI_ETC_FILE and looks
+for a line SCI=where/is/scilab_root
+and return where/is/scilab_root
+
+sci must point to a big enough allocated space
+
+*/
+char *get_SCI(char *sci)
+{
+	FILE* fd = NULL ;
+	char var[sci_max_len] ;
+
+	*sci ='\0' ;
+
+	fd = fopen(SCI_ETC_FILE, "r") ;
+
+	if (!fd)
+		return sci;
+	else
+		while (!feof(fd))
+		{
+			char *str = fgets(var, sci_max_len, fd) ;
+			if (str == NULL)
+				goto finally ;
+
+			var[sci_max_len - 1] = '\0' ;
+            if (strncmp(var, "SCI", 3) == 0)
+            {
+				char *ptr ;
+                sci = &var[3] ;
+                while (*sci == ' ' || *sci == '=' )
+                	sci++ ;
+                ptr = sci ;
+                while (*ptr != '\0')
+                	if (*ptr == ' ' || *ptr == '\n')
+                    	*ptr = '\0' ;
+                    else
+                    	ptr++ ;
+
+                goto finally ;
+			}
+
+		}
+
+finally:
+        fclose(fd) ;
+        return sci ;
+}
 
 

@@ -24,5 +24,7 @@ void sci_debug(const char *format, ...) ;
 void sci_error(const char *format, ...) ;
 
 PyObject* create_list(PyObject *obj) ;
+char *get_SCI(char*) ;
+extern const int sci_max_len ;
 
 #endif
