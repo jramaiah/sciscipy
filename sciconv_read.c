@@ -50,40 +50,40 @@ struct sciconv_read_struct *sciconv_read_list = NULL;
 static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 {
     PyObject * array ;
-    int i, j, mn ;
-    int dim[2] ;
-    double * cxtmp_transpose ;
+    npy_intp dim[2], mn;
 
     if (m == 1 || n == 1)
     {
         mn = m*n ;
-        array = PyArray_FromDimsAndData(1, &mn, PyArray_DOUBLE, \
-                                            (char*) cxtmp); 
 
-	// TODO
-	//array = PyArray_NewFromDescr(&PyArray_Type,  )
+	array = PyArray_NewFromDescr(&PyArray_Type, \
+				     PyArray_DescrFromType(PyArray_DOUBLE),\
+				     1,\
+				     &mn,\
+				     NULL,\
+				     (void *) cxtmp,\
+				     NPY_OWNDATA & NPY_FARRAY,\
+				     NULL			     
+				    ) ;
+
         return array ;
     }
     
-    dim[0] = m ;
-    dim[1] = n ;
+    dim[0] = n ;
+    dim[1] = m ;
 
- 	cxtmp_transpose = (double*) malloc(m*n*sizeof(double));
+	array = PyArray_NewFromDescr(&PyArray_Type, \
+      			     PyArray_DescrFromType(PyArray_DOUBLE),\
+      			     2,\
+      			     dim,\
+      			     NULL,\
+      			     (void *) cxtmp,\
+      			     NPY_OWNDATA & NPY_FARRAY,\
+      			     NULL			     
+      			    ) ;
 
- 	if (!cxtmp_transpose)
- 	{
- 		PyErr_SetString(PyExc_MemoryError, "out of memory") ;
- 		return NULL ;
- 	}
 
-    for (i=0; i<m; ++i)
-        for (j=0; j<n; ++j)
-            cxtmp_transpose[i*n+j] = cxtmp[j*m+i] ;
-
-    array = PyArray_FromDimsAndData(2, dim, PyArray_DOUBLE, \
-                                        (char*) cxtmp_transpose) ; 
-    free(cxtmp) ;
-    return array ;
+    return PyArray_Transpose(array, NULL) ;
 }
 
 static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
