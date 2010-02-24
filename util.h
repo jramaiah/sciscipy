@@ -1,7 +1,8 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#undef HAVE_STRERROR
+#undef HAVE_STRERRO
+#undef SIZEOF_LONG
 
 #include "stack-c-4py.h"
 #include "CallScilab.h"

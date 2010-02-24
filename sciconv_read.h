@@ -25,8 +25,8 @@
 
 #include <Python.h>
 
-#if NUMPY == 1
 #include "util.h"
+#if NUMPY == 1
 #include "numpy/arrayobject.h"
 #endif
 

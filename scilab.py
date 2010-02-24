@@ -85,7 +85,7 @@ def find_output_param(macro_name):
         res = read("_tmp2_")
         eval("clear _tmp1_, _tmp2_")
     
-        return res[0]
+        return int(res[0])
 
     return 1
 

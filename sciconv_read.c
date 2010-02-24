@@ -83,14 +83,14 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
       			    ) ;
 
 
-    return PyArray_Transpose(array, NULL) ;
+    return PyArray_Transpose((PyArrayObject*) array, NULL) ;
 }
 
 static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
 {
     PyObject * array ;
-    int i, j, mn ;
-    int dim[2] ;
+    int i, j  ;
+    npy_intp dim[2], mn ;
     complex * cxtmp_transpose ;
 
  	cxtmp_transpose = (complex*) malloc(2*m*n*sizeof(complex));
@@ -114,12 +114,29 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
     if (m == 1 || n == 1)
     {
         mn = m*n ;
-        array = PyArray_FromDimsAndData(1, &mn, PyArray_CDOUBLE, \
-                                            (char*) cxtmp_transpose) ; 
+
+
+		array = PyArray_NewFromDescr(&PyArray_Type, \
+				     PyArray_DescrFromType(PyArray_CDOUBLE),\
+				     1,\
+				     &mn,\
+				     NULL,\
+				     (void *) cxtmp_transpose,\
+				     NPY_OWNDATA & NPY_CARRAY,\
+				     NULL			     
+				    ) ;
     }
     else
-        array = PyArray_FromDimsAndData(2, dim, PyArray_CDOUBLE, \
-                                            (char*) cxtmp_transpose) ; 
+
+		array = PyArray_NewFromDescr(&PyArray_Type, \
+      			     PyArray_DescrFromType(PyArray_CDOUBLE),\
+      			     2,\
+      			     dim,\
+      			     NULL,\
+      			     (void *) cxtmp_transpose,\
+      			     NPY_OWNDATA & NPY_CARRAY,\
+      			     NULL			     
+      			    ) ;
 
     free(cxtmp) ;
     return array ;

@@ -29,7 +29,7 @@ if os.environ.get('SCI'):
 
 sci_install = os.path.join("/", "usr", "local", "share", "scilab")
 
-list_of_macros = [('SCI', '"' + sci_install + '"'), ('SCIDEBUG', 1),]
+list_of_macros = [('SCI', '"' + sci_install + '"'), ('SCIDEBUG', 0),]
 
 # Test for python version
 if sys.version_info[0] >= 3:

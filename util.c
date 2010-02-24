@@ -53,7 +53,7 @@ int is_real(char *name)
 
 void sci_debug(const char *format, ...)
 {
-#if SCIDEBUG
+#if SCIDEBUG == 1
     va_list argp ;
     va_start(argp, format) ;
     vprintf(format, argp) ;

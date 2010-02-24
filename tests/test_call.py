@@ -23,7 +23,6 @@ class test_call(unittest.TestCase):
 		sciscipy.eval("mean1 = mean([1,2;3,4])")
 		mean2 = sciscipy.read("mean1")
 		comp = mean1 == mean2
-		print comp
 		assert(comp)
 
 	def test_strcat(self):
@@ -33,7 +32,6 @@ class test_call(unittest.TestCase):
 		sciscipy.eval("strcat1 = strcat(['1', '4'], 'x')")
 		strcat2 = sciscipy.read("strcat1")
 		comp = strcat1 == strcat2
-		print comp
 		assert(comp)
 
 
