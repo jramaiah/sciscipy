@@ -122,7 +122,7 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
 				     &mn,\
 				     NULL,\
 				     (void *) cxtmp_transpose,\
-				     NPY_OWNDATA & NPY_CARRAY,\
+				     NPY_OWNDATA | NPY_CARRAY,\
 				     NULL			     
 				    ) ;
     }
@@ -134,7 +134,7 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
       			     dim,\
       			     NULL,\
       			     (void *) cxtmp_transpose,\
-      			     NPY_OWNDATA & NPY_CARRAY,\
+      			     NPY_OWNDATA | NPY_CARRAY,\
       			     NULL			     
       			    ) ;
 
