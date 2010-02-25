@@ -62,7 +62,7 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 				     &mn,\
 				     NULL,\
 				     (void *) cxtmp,\
-				     NPY_OWNDATA & NPY_FARRAY,\
+				     NPY_OWNDATA | NPY_FARRAY,\
 				     NULL			     
 				    ) ;
 
@@ -78,12 +78,13 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
       			     dim,\
       			     NULL,\
       			     (void *) cxtmp,\
-      			     NPY_OWNDATA & NPY_FARRAY,\
+      			     NPY_OWNDATA | NPY_FARRAY,\
       			     NULL			     
       			    ) ;
 
 
     return PyArray_Transpose((PyArrayObject*) array, NULL) ;
+
 }
 
 static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
@@ -140,6 +141,7 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
 
     free(cxtmp) ;
     return array ;
+
 }
 #else
 
