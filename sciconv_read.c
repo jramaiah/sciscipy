@@ -42,20 +42,21 @@
 */
 
 #include "sciconv_read.h"
+#include "deallocator.h"
 #include "util.h"
 
-struct sciconv_read_struct *sciconv_read_list = NULL;
+struct sciconv_read_struct *sciconv_read_list = NULL ;
 
 #if NUMPY == 1
 static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 {
-    PyObject * array ;
-    npy_intp dim[2], mn;
+    PyObject *array, *res ;
+    npy_intp dim[2], mn ;
 
     if (m == 1 || n == 1)
     {
         mn = m*n ;
-
+	
 	array = PyArray_NewFromDescr(&PyArray_Type, \
 				     PyArray_DescrFromType(PyArray_DOUBLE),\
 				     1,\
@@ -66,11 +67,13 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 				     NULL			     
 				    ) ;
 
-        return array ;
+	attach_deallocator(array, cxtmp) ;
+
+	return array ;
     }
     
-    dim[0] = n ;
-    dim[1] = m ;
+    dim[0] = m ;
+    dim[1] = n ;
 
 	array = PyArray_NewFromDescr(&PyArray_Type, \
       			     PyArray_DescrFromType(PyArray_DOUBLE),\
@@ -81,9 +84,13 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
       			     NPY_OWNDATA | NPY_FARRAY,\
       			     NULL			     
       			    ) ;
+	
+	attach_deallocator(array, cxtmp) ;
 
+	//res = PyArray_Transpose((PyArrayObject*) array, NULL) ;
+	//Py_DECREF(array) ;
 
-    return PyArray_Transpose((PyArrayObject*) array, NULL) ;
+    return array ;
 
 }
 
@@ -140,6 +147,7 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
       			    ) ;
 
     free(cxtmp) ;
+	attach_deallocator(array, cxtmp_transpose) ;
     return array ;
 
 }

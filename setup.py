@@ -72,7 +72,7 @@ class TestCommand(Command):
 
 module1 = Extension('sciscipy',
 			sources = ['sciscipy.c', 'sciconv_read.c', 
-                            'sciconv_write.c', 'util.c'],
+                            'sciconv_write.c', 'util.c', 'deallocator.c'],
 			include_dirs = sci_include,
 			libraries = ['scilab'],
 			library_dirs = sci_lib_dir,

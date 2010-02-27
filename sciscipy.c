@@ -21,6 +21,7 @@
 #include "sciconv_read.h"
 #include "sciconv_write.h"
 #include "util.h"
+#include "deallocator.h"
 
 
 extern int StartScilab(char *SCIpath, char *ScilabStartup,int *Stacksize);
@@ -162,6 +163,7 @@ initsciscipy(void)
 {
 
 	int er = Initialize() ;
+	PyObject *m ;
 	if (er != 0)
 	{
 		PyErr_SetString(PyExc_TypeError, "Can not initialize scilab") ;
@@ -169,18 +171,26 @@ initsciscipy(void)
 #ifdef PYTHON3
 		return NULL ;
 #endif
-
-	}
+}
 	else
-	{
+{
         numpy_init() ;
 		sciconv_read_init() ;
 		sciconv_write_init() ;
+		_MyDeallocType.tp_new = PyType_GenericNew ;
+		if (PyType_Ready(&_MyDeallocType) < 0)
+			PyErr_SetString(PyExc_TypeError, "Can not initialize deallocator") ;
+	
+	Py_INCREF(&_MyDeallocType);
+
+			 
 
 #ifdef PYTHON3
 		return PyModule_Create(&sciscipy) ;
 #else
-        Py_InitModule("sciscipy", SciscipyMethods) ;
+        m = Py_InitModule("sciscipy", SciscipyMethods) ;
+    	PyModule_AddObject(m, "allocator", (PyObject *)&_MyDeallocType);
+		
 #endif
 
 	}
