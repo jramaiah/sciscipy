@@ -192,12 +192,13 @@ static PyObject * create_listmatrix(double *cxtmp, int m, int n, int is_complex)
                 else
 			        PyList_SET_ITEM(new_line, j, Py_BuildValue("d", cxtmp[j*m + i])) ;	
 
-			PyList_SET_ITEM(new_list, i, Py_BuildValue("O", new_line)) ;
+			PyList_SET_ITEM(new_list, i, new_line) ;
 		}
 	}
 
 	free(cxtmp) ;
-	return Py_BuildValue ("O", new_list) ;
+
+	return new_list ;
 };
 
 #endif
