@@ -22,10 +22,28 @@ scilab module
 
 Provide an easy to use interface toward scilab
 
-TODO: get the error from scilab and raise an exception
+Usage:
+>>> from scilab import scilab as sci
+>>> x = [1,2,3]
+>>> sci.disp(x)
+ 
+    1.  
+    2.  
+    3.
 
-use macrovar ou fun2string to discover the number of
-output args
+With the help of the sciscipy module, you can also do:
+
+>>> sciscipy.eval("function y = func(x) ; y = x*x ; endfunction")
+>>> sci.func(2)
+array([ 4.])
+
+
+Internals
+=========
+
+It uses macrovar ou fun2string to discover the number of
+output args 
+
 
 @author: vincent.guffens@gmail.com
 """
@@ -35,11 +53,26 @@ from sciscipy import write, read, eval
 # Type 130 functions do not
 # work with macrovar so their
 # output vars is hardcoded here
-__known_func = {"size" : 1,
-                "find" : 1,
-                "disp" : 0,
-                "bdiag" : 3,
+__known_func = {
+	"size" : 1,
+	"find" : 1,
+	"disp" : 0,
+	"bdiag" : 3,
+	"banner" : 0,
+	"exec" : 1,
                 }
+
+class ScilabError(Exception):
+	pass	
+	
+def run_scilab_cmd(cmd_str):
+	new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;"%cmd_str
+	eval(new_cmd)
+	ier = read("_ier_")
+	if ier != 0:
+		lasterror = read("_er_msg_")
+		raise ScilabError, lasterror
+
 
 def find_scilab_type(var_name):
     """
@@ -52,7 +85,7 @@ def find_scilab_type(var_name):
     if type(var_name) != type(""):                    
         raise TypeError, "var_name must be a string"
 
-    eval("_tmp1_ = type(" + var_name + ")")
+    run_scilab_cmd("_tmp1_ = type(" + var_name + ")")
     res = read("_tmp1_")
     eval("clear _tmp1_")
 
@@ -130,7 +163,7 @@ class Functor(object):
             cmd = "%s(%s)"%(self.name, ",".join(in_args)) 
 
 
-        eval(cmd)
+        run_scilab_cmd(cmd)
 
         if out == 0:
             return None

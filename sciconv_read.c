@@ -50,7 +50,7 @@ struct sciconv_read_struct *sciconv_read_list = NULL ;
 #if NUMPY == 1
 static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 {
-    PyObject *array, *res ;
+	PyObject *array ;
     npy_intp dim[2], mn ;
 
     if (m == 1 || n == 1)
@@ -86,9 +86,6 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
       			    ) ;
 	
 	attach_deallocator(array, cxtmp) ;
-
-	//res = PyArray_Transpose((PyArrayObject*) array, NULL) ;
-	//Py_DECREF(array) ;
 
     return array ;
 

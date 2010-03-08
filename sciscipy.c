@@ -189,8 +189,6 @@ initsciscipy(void)
 		return PyModule_Create(&sciscipy) ;
 #else
         m = Py_InitModule("sciscipy", SciscipyMethods) ;
-    	PyModule_AddObject(m, "allocator", (PyObject *)&_MyDeallocType);
-		
 #endif
 
 	}
