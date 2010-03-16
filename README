@@ -16,13 +16,22 @@ command. Use it as follows:
 >>> (any_output, ...) = sci.any_func(param1, ...)
 
 INSTALL
---------
+========
+
+LINUX
 
 $ ./setup build
 $ ./setup install
 
+WINDOWS
+
+c:\Python26\python.exe setup.py build --compiler=mingw32
+c:\Python26\python.exe setup.py build install
+
 RUN
----
+===
+
+LINUX
 
 the LD_LIBRARY_PATH environment variable must be set, for instance to
 
@@ -32,4 +41,19 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/scilab
 export SCI=/usr/share/scilab
 
 See http://www.scilab.org/product/man/compile_and_run_call_scilab.html 
+
+WINDOWS
+
+must include C:\Program Files (x86)\scilab-5.2.1\bin in the path
+
+and set the SCI enironment variable to C:\Program Files (x86)\scilab-5.2.1\
+
+
+
+
+
+
+
+
+
 

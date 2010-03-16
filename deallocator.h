@@ -2,7 +2,10 @@
 #define _DEALLOCATOR_H
 
 #include <Python.h>
+
+#if NUMPY == 1
 #include "numpy/arrayobject.h"
+
 
 #define DEBUG_MEM_ALLOC	0
 
@@ -17,4 +20,5 @@ extern struct _MyDeallocStruct _MyDeallocObject ;
 extern PyTypeObject _MyDeallocType ;
 extern void attach_deallocator(PyObject *, void *) ;
 
+#endif
 #endif

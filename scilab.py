@@ -60,6 +60,7 @@ __known_func = {
 	"bdiag" : 3,
 	"banner" : 0,
 	"exec" : 1,
+        "plot2d" : 1,
                 }
 
 class ScilabError(Exception):
@@ -69,7 +70,7 @@ def run_scilab_cmd(cmd_str):
 	new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;"%cmd_str
 	eval(new_cmd)
 	ier = read("_ier_")
-	if ier != 0:
+	if ier != 0 and ier != [0]:
 		lasterror = read("_er_msg_")
 		raise ScilabError, lasterror
 

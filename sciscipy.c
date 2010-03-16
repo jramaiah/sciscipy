@@ -177,18 +177,21 @@ initsciscipy(void)
         numpy_init() ;
 		sciconv_read_init() ;
 		sciconv_write_init() ;
+		
+#if NUMPY == 1
 		_MyDeallocType.tp_new = PyType_GenericNew ;
 		if (PyType_Ready(&_MyDeallocType) < 0)
 			PyErr_SetString(PyExc_TypeError, "Can not initialize deallocator") ;
 	
-	Py_INCREF(&_MyDeallocType);
-
+		Py_INCREF(&_MyDeallocType);
+#endif
 			 
 
 #ifdef PYTHON3
 		return PyModule_Create(&sciscipy) ;
 #else
         m = Py_InitModule("sciscipy", SciscipyMethods) ;
+		
 #endif
 
 	}

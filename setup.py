@@ -7,24 +7,36 @@ from os.path import splitext, basename, join as pjoin
 import os, sys
 
 # This should be customized for specific instals
-common_include_base=os.path.join("/","usr", "include", "scilab")
 
-sci_include = [
-		os.path.join(common_include_base, "core"), 
-	       	os.path.join(common_include_base, "call_scilab")
-	      ]
+if os.name == 'nt':
+	common_include_base = r"C:\Program Files (x86)\scilab-5.2.1\modules"
+	sci_include = [
+			os.path.join(common_include_base, "core", "includes"), 
+			os.path.join(common_include_base, "call_scilab", "includes")
+			  ]
+	
+	sci_lib_dir =  [r"C:\Program Files (x86)\scilab-5.2.1\bin"]
+	sci_librairies = ['LibScilab']
+
+elif os.name == 'posix':
+	common_include_base = os.path.join("/","usr", "include", "scilab")
+	sci_include = [
+			os.path.join(common_include_base, "core"), 
+			os.path.join(common_include_base, "call_scilab")
+			  ]
+	sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
+	sci_librairies = ['scilab']
+else:
+	raise NotImplementedError, "Only 'nt' and 'posix' are supported"
+	
+sci_sources = ['sciscipy.c', 'sciconv_read.c', 'sciconv_write.c', 'util.c']
 
 if os.environ.get('SCI'):
 	common_include_base_call=os.path.join("/",os.environ.get('SCI'),"..","..","include","scilab")
 
 	sci_include.append(os.path.join("/", common_include_base_call, "core"))
 	sci_include.append(os.path.join("/",common_include_base_call, "call_scilab"))
-
-
-sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
-if os.environ.get('SCI'):
 	sci_lib_dir.append(os.path.join("/",os.environ.get('SCI'),"..","..","lib","scilab"))
-
 
 
 sci_install = os.path.join("/", "usr", "local", "share", "scilab")
@@ -39,6 +51,7 @@ if sys.version_info[0] >= 3:
 try: 
     import numpy
     numpy_is_avail = 1
+    sci_sources += ['deallocator.c']
 except ImportError:
     numpy_is_avail = 0
 
@@ -71,17 +84,16 @@ class TestCommand(Command):
         t.run(tests)
 
 module1 = Extension('sciscipy',
-			sources = ['sciscipy.c', 'sciconv_read.c', 
-                            'sciconv_write.c', 'util.c', 'deallocator.c'],
+			sources = sci_sources,
 			include_dirs = sci_include,
-			libraries = ['scilab'],
+			libraries = sci_librairies,
 			library_dirs = sci_lib_dir,
 			define_macros = list_of_macros
 )
 
 setup (	name = 'sciscipy',
        	version = '0.3.0',
-	    author = 'Vincent Guffens',
+	author = 'Vincent Guffens',
        	author_email = 'vincent.guffens@gmail.com',
        	description = 'Scilab binding',
        	ext_modules = [module1],
