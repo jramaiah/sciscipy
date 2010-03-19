@@ -1,6 +1,4 @@
 import unittest
-
-from numpy.testing import assert_almost_equal
 from scilab import Scilab
 import sciscipy 
 
@@ -15,7 +13,7 @@ class test_call(unittest.TestCase):
 		sciscipy.eval("spec1 = spec([1,2;3,4])")
 		spec2 = sciscipy.read("spec1")
 		for l1, l2 in zip(spec1, spec2):
-			assert_almost_equal(l1, l2)
+			self.assertAlmostEqual(l1, l2)
 
 	def test_mean(self):
 		""" [test_call] Testing mean
