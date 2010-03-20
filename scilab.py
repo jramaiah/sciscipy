@@ -60,7 +60,7 @@ __known_func = {
 	"bdiag" : 3,
 	"banner" : 0,
 	"exec" : 1,
-        "plot2d" : 1,
+    "plot2d" : 0,
                 }
 
 class ScilabError(Exception):
@@ -187,5 +187,7 @@ class Scilab(object):
 
     def __getattr__(self, name):
         return Functor(name)
+
+
 
 scilab = Scilab()    
