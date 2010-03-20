@@ -115,13 +115,17 @@ sciscipy_eval (PyObject *self, PyObject *args)
 {
 
 	char *name ;
+	
 	if ( !PyArg_ParseTuple (args, "s", &name) )
 		return NULL ;
-
-	SendScilabJob(name);	
-	while( ScilabHaveAGraph() )
+	
+	SendScilabJob(name);
+	
+	while ( ScilabHaveAGraph() )
 	{
+		Py_BEGIN_ALLOW_THREADS
 		ScilabDoOneEvent() ;
+		Py_END_ALLOW_THREADS
 	}
 	
 	Py_INCREF(Py_None);
