@@ -49,6 +49,8 @@ output args
 """
 
 from sciscipy import write, read, eval
+from functools import partial
+from threading import Thread
 
 # Type 130 functions do not
 # work with macrovar so their
@@ -188,6 +190,18 @@ class Scilab(object):
     def __getattr__(self, name):
         return Functor(name)
 
+class ScilabThread(Thread):
+        def __init__(self, func):
+                Thread.__init__(self)
+                self.func = func
+                
+        def run(self):
+                self.func()
 
+def sciplot2d(*args):
+        func = Functor("plot2d")
+        to_exec = partial(func, *args)
+        sci_thread = ScilabThread(to_exec)
+        sci_thread.start()
 
 scilab = Scilab()    

@@ -92,7 +92,7 @@ module1 = Extension('sciscipy',
 )
 
 setup (	name = 'sciscipy',
-       	version = '0.3.0',
+       	version = '0.4.0',
 		author = 'Vincent Guffens',
        	author_email = 'vincent.guffens@gmail.com',
 		url = "http://forge.scilab.org/index.php/p/sciscipy/",
