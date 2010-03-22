@@ -52,6 +52,8 @@ from sciscipy import write, read, eval
 from functools import partial
 from threading import Thread
 
+import time
+
 # Type 130 functions do not
 # work with macrovar so their
 # output vars is hardcoded here
@@ -63,6 +65,8 @@ __known_func = {
 	"banner" : 0,
 	"exec" : 1,
     "plot2d" : 0,
+	"scf" : 0, # returns a type 9
+	"xs2gif" : 0,
                 }
 
 class ScilabError(Exception):
@@ -185,7 +189,17 @@ class Functor(object):
 class Scilab(object):
     """
     This class can call any scilab function (yeah!)
-    """
+    
+	Just instanciate an object of this class and call any
+	method to call equivalent scilab function.
+	
+	>>> sci = Scilab()
+	>>> from scilab import Scilab
+	>>> sci = Scilab()
+	>>> sci.zeros(2,2)
+	[[0.0, 0.0], [0.0, 0.0]]
+	>>>
+	"""
 
     def __getattr__(self, name):
         return Functor(name)
@@ -194,14 +208,22 @@ class ScilabThread(Thread):
         def __init__(self, func):
                 Thread.__init__(self)
                 self.func = func
-                
+                self.daemon = True
+				
         def run(self):
                 self.func()
 
-def sciplot2d(*args):
-        func = Functor("plot2d")
-        to_exec = partial(func, *args)
-        sci_thread = ScilabThread(to_exec)
-        sci_thread.start()
+def scipoll():
+	HOW_LONG = 0.1 # sec
+	while 1:
+		eval("")
+		time.sleep(HOW_LONG)
+		
+		
 
+# Create a convenience Scilab object
 scilab = Scilab()    
+
+# Run the polling thread
+poll_thread = ScilabThread(scipoll)
+poll_thread.start()
