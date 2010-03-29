@@ -13,7 +13,10 @@ if os.name == 'nt':
 	sci_include = [
 			os.path.join(common_include_base, "core", "includes"), 
 			os.path.join(common_include_base, "call_scilab", "includes")
-			  ]
+                        
+		       ]
+
+	
 	
 	sci_lib_dir =  [r"C:\Program Files (x86)\scilab-5.2.1\bin"]
 	sci_librairies = ['LibScilab']
@@ -50,6 +53,8 @@ if sys.version_info[0] >= 3:
 # Test for numpy
 try: 
     import numpy
+    import numpy.distutils.misc_util as misc
+    sci_include += os.path.join(misc.get_numpy_include_dirs())
     numpy_is_avail = 1
     sci_sources += ['deallocator.c']
 except ImportError:

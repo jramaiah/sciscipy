@@ -4,7 +4,7 @@
 #include <Python.h>
 
 #if NUMPY == 1
-#include "numpy/arrayobject.h"
+#include <numpy/arrayobject.h>
 
 
 #define DEBUG_MEM_ALLOC	0
