@@ -96,6 +96,19 @@ module1 = Extension('sciscipy',
 			define_macros = list_of_macros
 )
 
+long_description = r"""
+The goal of sciscipy is to give an access to Scilab features inside python.
+
+from scilab import Scilab
+sci = Scilab()
+
+x = sci.rand(20, 20)
+y = x*x.transpose()
+y_inv = sci.inv(y)
+
+The function func in sci.func(x, y) can be a scilab built-in or any user 
+defined function so that scilab libraries can be reused easily in python.
+"""
 setup (	name = 'sciscipy',
        	version = '0.4.0',
 		author = 'Vincent Guffens',
@@ -103,7 +116,9 @@ setup (	name = 'sciscipy',
 		url = "http://forge.scilab.org/index.php/p/sciscipy/",
 		license = "GPL",
        	description = 'Scilab binding',
+		long_description = long_description,
        	ext_modules = [module1],
         py_modules = ['scilab'], 
+		data_files = [(os.path.join('Lib', 'site-packages'), ['scilab.cfg'])],
         cmdclass = { 'test': TestCommand}
 )
