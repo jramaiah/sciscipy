@@ -51,27 +51,47 @@ output args
 from sciscipy import write, read, eval
 from functools import partial
 from threading import Thread
+from ConfigParser import ConfigParser
 
+import os
 import time
+
+DFLT_CONFIG = "scilab.cfg"
+SECTION_CONFIG = "KNOWN FUNC"
 
 # Type 130 functions do not
 # work with macrovar so their
 # output vars is hardcoded here
-__known_func = {
-	"size" : 1,
-	"find" : 1,
-	"disp" : 0,
-	"bdiag" : 3,
-	"banner" : 0,
-	"exec" : 1,
-    "plot2d" : 0,
-	"scf" : 0, # returns a type 9
-	"xs2gif" : 0,
-                }
+__known_func = {}
 
+				
 class ScilabError(Exception):
 	pass	
 	
+def update_scilab_func(filename = None):
+	"""
+	Look for filename and update the dictionary L{__known_func}
+	filename is a python config file
+	"""
+	assert isinstance(filename, (type(None), str)), "Wrong filename"
+	if filename == None:
+		filename = os.path.join(os.path.split(__file__)[0], DFLT_CONFIG)
+	
+	if not os.path.exists(filename):
+		raise ValueError, "can not open file: " + filename
+		
+	parser = ConfigParser()
+	parser.read(filename)
+	
+	if not parser.has_section(SECTION_CONFIG):
+		raise ValueError, "Invalid config file"
+		
+	items = parser.items(SECTION_CONFIG)
+	
+	for new_func, value in items:
+			__known_func[new_func] = int(value)
+		
+		
 def run_scilab_cmd(cmd_str):
 	new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;"%cmd_str
 	eval(new_cmd)
@@ -218,8 +238,10 @@ def scipoll():
 	while 1:
 		eval("")
 		time.sleep(HOW_LONG)
+
 		
-		
+# Update the dictionary
+update_config_file()		
 
 # Create a convenience Scilab object
 scilab = Scilab()    
