@@ -115,16 +115,21 @@ static int write_listoflist(char *name, PyObject *obj)
 {
 	int i, j, m, n ;
 	double *new_vec ;
+	double *new_vec_img ;
 	PyObject *item, *element ;
     int is_complex_found = 0 ;
+	SciErr sciErr;
 
 	m = PyList_Size(obj) ;
 	item = PyList_GetItem(obj, 0) ;
 	n = PyList_Size(item) ;
 
-	new_vec = (double*) calloc(sizeof(double)*2*m*n, 1) ;
-	
+	new_vec = (double*) calloc(sizeof(double)*m*n, 1) ;
 	if (!new_vec)
+		return -1 ;
+
+	new_vec_img = (double*) calloc(sizeof(double)*m*n, 1) ;
+	if (!new_vec_img)
 		return -1 ;
 
     for (i = 0; i < m; i++)
@@ -139,7 +144,7 @@ static int write_listoflist(char *name, PyObject *obj)
             {
 			    is_complex_found = 1 ;
                 new_vec[j*m+i] = PyComplex_RealAsDouble(element) ;
-                new_vec[m*n + j*m+i] = PyComplex_ImagAsDouble(element) ;
+                new_vec_img[j*m+i] = PyComplex_ImagAsDouble(element) ;
                 continue ;
             }
 
@@ -152,14 +157,23 @@ static int write_listoflist(char *name, PyObject *obj)
             sci_debug("[write_listoflist] something found" \
                                 "that is not real or complex") ;
             free(new_vec) ;
+            free(new_vec_img) ;
             return -1 ;
 		}
     }
-
-    if (is_complex_found)
-        C2F(cwritecmat)(name, &m, &n, new_vec, strlen(name)) ;
-    else
-	    WriteMatrix4py(name, &m, &n, new_vec) ;
+	
+    if (is_complex_found) 
+	{
+		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, new_vec, new_vec_img);
+    } 
+	else 
+	{
+		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, new_vec);
+		if(sciErr.iErr)
+		{
+			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
+		}
+	}
 	
     free(new_vec) ;
 	
@@ -203,17 +217,24 @@ static int write_listofdouble(char *name, PyObject *obj)
 	int i, m ;
     int n = 1 ;
 	double *new_vec ;
+	double *new_vec_img ;
 	PyObject *element ;
     int is_complex_found = 0 ;
+	SciErr sciErr;
     
     if (!PyList_Check(obj))
         obj = create_list(obj) ;
 
 	m = PyList_Size(obj) ;
 
-	new_vec = (double*) calloc(sizeof(double)*2*m, 1) ;
+	new_vec = (double*) calloc(sizeof(double)*m, 1) ;
 	
 	if (!new_vec)
+		return -1 ;
+
+	new_vec_img = (double*) calloc(sizeof(double)*m, 1) ;
+	
+	if (!new_vec_img)
 		return -1 ;
 
     for (i = 0; i < m; i++)
@@ -224,7 +245,7 @@ static int write_listofdouble(char *name, PyObject *obj)
         {
 	        is_complex_found = 1 ;
             new_vec[i] = PyComplex_RealAsDouble(element) ;
-            new_vec[m + i] = PyComplex_ImagAsDouble(element) ;
+            new_vec_img[i] = PyComplex_ImagAsDouble(element) ;
             continue ;
         }
 
@@ -240,10 +261,19 @@ static int write_listofdouble(char *name, PyObject *obj)
         return -1 ;
     }
 
-    if (is_complex_found)
-        C2F(cwritecmat)(name, &m, &n, new_vec, strlen(name)) ;
-    else
-	    WriteMatrix4py(name, &m, &n, new_vec) ;
+
+    if (is_complex_found) 
+	{
+		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, new_vec, new_vec_img);
+    } 
+	else 
+	{
+		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, new_vec);
+		if(sciErr.iErr)
+		{
+			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
+		}
+	}
 	
     free(new_vec) ;
 	
@@ -286,8 +316,10 @@ static int write_numpy(char *name, PyObject *obj)
 
     PyArrayObject * array = (PyArrayObject *) obj ;
     double * data ;    
+    double * data_img ;    
     int i, j, m, n ;
     complex * item ;
+	SciErr sciErr;
 
     // TODO: add support for 1D array
 
@@ -325,7 +357,11 @@ static int write_numpy(char *name, PyObject *obj)
                 data[j*m + i] = *(double*)(array->data + i*array->strides[0] + \
                                             j*array->strides[1]) ;
 	
-        WriteMatrix4py(name, &m, &n, data) ;
+		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, data);
+		if(sciErr.iErr)
+		{
+			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
+		}
         free(data) ;
 
         return 1 ;
@@ -333,7 +369,8 @@ static int write_numpy(char *name, PyObject *obj)
     
     if (array->descr->type_num == PyArray_CDOUBLE) 
     {
-        data = (double*) malloc(2*m*n*sizeof(double)) ;
+        data = (double*) malloc(m*n*sizeof(double)) ;
+        data_img = (double*) malloc(m*n*sizeof(double)) ;
 
         if (!data)
         {
@@ -348,12 +385,13 @@ static int write_numpy(char *name, PyObject *obj)
                 item = (complex*)(array->data + i*array->strides[0] + \
                                             j*array->strides[1]) ;
                 data[j*m + i] = (*item)[0] ;
-                data[m*n + j*m + i] = (*item)[1] ;	
+                data_img[j*m + i] = (*item)[1] ;	
         }
 
-        C2F(cwritecmat)(name, &m, &n, data, strlen(name)) ;
-    
+		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, data, data_img);
+
         free(data) ;
+        free(data_img) ;
         return 1 ;
     }
 

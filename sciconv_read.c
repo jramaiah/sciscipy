@@ -91,7 +91,7 @@ static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 
 }
 
-static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
+static PyObject * create_cnumpyarray(double *cxtmp, double *cxtmp_img, int m, int n)
 {
     PyObject * array ;
     int i, j  ;
@@ -113,7 +113,8 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
         for (j=0; j<n; ++j)
         {
             cxtmp_transpose[i*n+j][0] = cxtmp[j*m+i] ;
-            cxtmp_transpose[i*n+j][1] = cxtmp[m*n + j*m+i] ;
+			cxtmp_transpose[i*n+j][1] = cxtmp_img[j*m+i] ;
+
         }
 
     if (m == 1 || n == 1)
@@ -150,7 +151,7 @@ static PyObject * create_cnumpyarray(double *cxtmp, int m, int n)
 }
 #else
 
-static PyObject * create_listmatrix(double *cxtmp, int m, int n, int is_complex)
+static PyObject * create_listmatrix(double *cxtmp,  double *cxtmp_img, int m, int n, int is_complex)
 {
 	int i,j ;
 	PyObject *new_list, *new_line ;
@@ -163,10 +164,10 @@ static PyObject * create_listmatrix(double *cxtmp, int m, int n, int is_complex)
 	
 		for (i = 0 ; i < m*n ; i++)
 		{
-            if (is_complex)
+            if (cxtmp_img != NULL)
             {
                 new_complex.real = cxtmp[i] ;
-                new_complex.imag = cxtmp[m*n + i] ;
+				new_complex.imag = cxtmp_img[i] ;
 			    PyList_SET_ITEM(new_list, i, Py_BuildValue("D", &new_complex)) ;	
             }
             else
@@ -180,10 +181,10 @@ static PyObject * create_listmatrix(double *cxtmp, int m, int n, int is_complex)
 		{
 			new_line = PyList_New(n) ;
 			for (j = 0 ; j < n ; j++)
-                if (is_complex)
+                if (cxtmp_img != NULL)
                 {
                     new_complex.real = cxtmp[j*m + i] ;
-                    new_complex.imag = cxtmp[m*n + j*m + i] ;
+					new_complex.imag = cxtmp_img[j*m + i] ;
 			        PyList_SET_ITEM(new_line, j, Py_BuildValue("D", &new_complex)) ;	
                 }
                 else
@@ -208,47 +209,65 @@ static PyObject * create_listmatrix(double *cxtmp, int m, int n, int is_complex)
 static PyObject * read_matrix(char *name)
 {	
 
-    int m, n, lp ;
-    int mult ;
- 	double *cxtmp ;
+    int m, n ;
+	SciErr sciErr ;
+ 	double *cxtmp = NULL ;
+	double *cxtmp_img = NULL ;
  	PyObject * matrix ;
     
     if (is_real(name)) 
     {
-        mult = 1 ;
- 	    GetMatrixptr(name, &m, &n, &lp) ; 
+		sciErr = readNamedMatrixOfDouble(pvApiCtx, name, &m, &n, NULL);
     } 
     else
     {
-        mult = 2 ;
-        C2F(cmatcptr)(name, &m, &n, &lp, strlen(name));
+		sciErr = readNamedComplexMatrixOfDouble(pvApiCtx, name, &m, &n, NULL, NULL);
     }
 
- 	cxtmp = (double*) malloc(mult*m*n*sizeof(double));
- 	
+	if(sciErr.iErr)
+	{
+			printError(&sciErr, 0);
+	}
+
+
+	cxtmp = (double*)malloc((m*n)*sizeof(double));
+    if (!is_real(name)) 
+	{
+			cxtmp_img = (double*)malloc((m*n)*sizeof(double));
+	}
+
  	if (!cxtmp)
  	{
  		PyErr_SetString(PyExc_MemoryError, "out of memory") ;
  		return NULL ;
  	}
    
-    if (mult == 1) 
+    if (is_real(name)) 
     {
-	    ReadMatrix4py(name, &m, &n, cxtmp) ;
+		sciErr = readNamedMatrixOfDouble(pvApiCtx, name, &m, &n, cxtmp);
+		if (sciErr.iErr)
+		{	
+			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; return 0; 
+		}
 #if NUMPY == 1
         matrix = create_numpyarray(cxtmp, m, n) ;
 #else
-        matrix = create_listmatrix(cxtmp, m, n, 0) ;
+		matrix = create_listmatrix(cxtmp, NULL, m, n) ;
 #endif
 
     }
     else
     {
-        C2F(creadcmat)(name, &m, &n, cxtmp, strlen(name)) ;
+		sciErr = readNamedComplexMatrixOfDouble(pvApiCtx, name, &m, &n, cxtmp, cxtmp_img);
+		if (sciErr.iErr)
+		{	
+			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; return 0; 
+		}
+
 #if NUMPY == 1
-        matrix = create_cnumpyarray(cxtmp, m, n) ;
+		matrix = create_cnumpyarray(cxtmp, cxtmp_img, m, n) ;
 #else
-        matrix = create_listmatrix(cxtmp, m, n, 1) ;
+		matrix = create_listmatrix(cxtmp, cxtmp_img, m, n) ;
 #endif
     }
 
@@ -269,30 +288,48 @@ static PyObject * read_string(char *name)
     int x = 0, y = 0 ;
 
     char ** variable_from_scilab = NULL ;
-    int * lengthOfB = GetLengthStringMatrixByName(name, &m, &n) ;
+	SciErr sciErr;
+	sciErr = readNamedMatrixOfString(pvApiCtx,name,&m, &n, NULL, NULL);
+
+	if(sciErr.iErr)
+	{
+		printError(&sciErr, 0);
+	}
+
+	int *piLen = (int*)malloc(sizeof(int) * m * n);
+
+
 
     PyObject *new_list ;
+	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, NULL);
+ 
+	if(sciErr.iErr)
+	{
+		printError(&sciErr, 0);
+	}
 
     variable_from_scilab = (char **) malloc(sizeof(char*)* (m*n)) ;
 
     for (i = 0; i < m * n; i++)
     {
-        variable_from_scilab[i] = (char*) malloc(sizeof(char)*(lengthOfB[i])) ;
+        variable_from_scilab[i] = (char*) malloc(sizeof(char)*(piLen[i])) ;
     }
 
     i = 0;
 	new_list = PyList_New(m*n) ;
+
+	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, variable_from_scilab);
+
+	if(sciErr.iErr)
+	{
+		printError(&sciErr, 0);
+	}
     
     for (x = 1; x <= m; x++)
     {
         for (y = 1; y <= n; y++)
         {
-            int nlr = lengthOfB[i] ;
-            char *tmpStr = NULL ;
-            tmpStr = variable_from_scilab[i] ;
-            C2F(creadchains)(name, &x, &y, &nlr, tmpStr, \
-                                (unsigned long) strlen(name), \
-                                (unsigned long) strlen(tmpStr)) ;
+            char *tmpStr = variable_from_scilab[x * m + y] ;
 			PyList_SET_ITEM(new_list, i, Py_BuildValue("s", tmpStr)) ;
             free(tmpStr) ;	
             i++;

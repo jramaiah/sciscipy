@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "api_scilab.h"
 
 const int sci_max_len = 1024 ;
 static const char* SCI_ETC_FILE = "/etc/sciscilab" ;
@@ -16,17 +17,28 @@ static const char* SCI_ETC_FILE = "/etc/sciscilab" ;
 int read_sci_type(char *name)
 {
 	char job[BUFSIZE] ;
-	int m, n, lp ;
+	int m, n ;
 	double type[1] ;
-	
+
+	SciErr sciErr;
+
 	snprintf(job, BUFSIZE, "_tmp_value_ = type(%s);", name) ;
 	SendScilabJob(job) ;
-	GetMatrixptr("_tmp_value_", &m, &n, &lp) ; 
-	
+	sciErr = readNamedMatrixOfDouble(pvApiCtx, "_tmp_value_", &m, &n, NULL);
+	if(sciErr.iErr)
+		{
+			printError(&sciErr, 0);
+		}
+
 	if (m*n != 1)
 		return -1 ;
 		
-	ReadMatrix4py("_tmp_value_", &m, &n, &type[0]);
+
+	sciErr = readNamedMatrixOfDouble(pvApiCtx, "_tmp_value_", &m, &n, &type[0]);
+	if(sciErr.iErr)
+		{
+			printError(&sciErr, 0);
+		}
 
 	return (int) type[0] ;
 } ;
@@ -38,17 +50,7 @@ int read_sci_type(char *name)
  */
 int is_real(char *name)
 {
-    int ret, rowA_, colA_ ;
-	char job[BUFSIZE] ;
-
-	snprintf(job, BUFSIZE, "_tmp_value_ = isreal(%s);", name) ;
-    
-	SendScilabJob("_tmp_value_ = 0;") ;
-	SendScilabJob(job) ;
-    C2F(creadbmat)("_tmp_value_", &rowA_, &colA_, &ret, \
-                                        strlen("_tmp_value_"));
-    return ret ;
-    
+	return !isNamedVarComplex(pvApiCtx, name);
 }
 
 void sci_debug(const char *format, ...)
