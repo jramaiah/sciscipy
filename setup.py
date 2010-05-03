@@ -23,7 +23,7 @@ if os.name == 'nt':
 
 elif os.name == 'posix':
 	common_include_base = os.path.join("/","usr", "include", "scilab")
-	sci_include = [
+	sci_include = [ common_include_base,
 			os.path.join(common_include_base, "core"), 
 			os.path.join(common_include_base, "call_scilab")
 			  ]
