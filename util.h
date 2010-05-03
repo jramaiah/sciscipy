@@ -4,9 +4,8 @@
 #undef HAVE_STRERRO
 #undef SIZEOF_LONG
 
-#include "stack-c-4py.h"
-#include "CallScilab.h"
-#include "stack-c.h"
+#include "call_scilab.h"
+#include "api_scilab.h"
 
 #define BUFSIZE 1024
 
