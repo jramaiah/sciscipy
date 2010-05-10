@@ -241,7 +241,7 @@ def scipoll():
 
 		
 # Update the dictionary
-update_config_file()		
+update_scilab_func()		
 
 # Create a convenience Scilab object
 scilab = Scilab()    

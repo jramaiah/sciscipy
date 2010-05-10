@@ -12,14 +12,14 @@ if os.name == 'nt':
 	common_include_base = r"C:\Program Files (x86)\scilab-5.2.1\modules"
 	sci_include = [
 			os.path.join(common_include_base, "core", "includes"), 
-			os.path.join(common_include_base, "call_scilab", "includes")
-                        
+			os.path.join(common_include_base, "call_scilab", "includes"),
+			os.path.join(common_include_base, "api_scilab", "includes")
 		       ]
 
 	
 	
 	sci_lib_dir =  [r"C:\Program Files (x86)\scilab-5.2.1\bin"]
-	sci_librairies = ['LibScilab']
+	sci_librairies = ['LibScilab', 'api_scilab']
 
 elif os.name == 'posix':
 	common_include_base = os.path.join("/","usr", "include", "scilab")
@@ -44,7 +44,7 @@ if os.environ.get('SCI'):
 
 sci_install = os.path.join("/", "usr", "local", "share", "scilab")
 
-list_of_macros = [('SCI', '"' + sci_install + '"'), ('SCIDEBUG', 0),]
+list_of_macros = [('SCI', '"' + sci_install + '"'), ('SCIDEBUG', 0)]
 
 # Test for python version
 if sys.version_info[0] >= 3:
