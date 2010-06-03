@@ -32,7 +32,7 @@ static int Initialize(void)
 {
 	int res ;
 #ifdef _MSC_VER
-    res = StartScilab(NULL, NULL, NULL) == FALSE
+    res = StartScilab(NULL, NULL, NULL) == FALSE ;
 #else
 	if (getenv("SCI") != NULL)
     	res = StartScilab(getenv("SCI"), NULL, NULL) ;
