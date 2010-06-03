@@ -289,23 +289,24 @@ static PyObject * read_string(char *name)
 
     char ** variable_from_scilab = NULL ;
 	SciErr sciErr;
+	
 	sciErr = readNamedMatrixOfString(pvApiCtx,name,&m, &n, NULL, NULL);
-
+	
 	if(sciErr.iErr)
 	{
 		printError(&sciErr, 0);
+		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
 	}
 
 	int *piLen = (int*)malloc(sizeof(int) * m * n);
 
-
-
     PyObject *new_list ;
 	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, NULL);
- 
+	
 	if(sciErr.iErr)
 	{
 		printError(&sciErr, 0);
+		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
 	}
 
     variable_from_scilab = (char **) malloc(sizeof(char*)* (m*n)) ;
@@ -317,17 +318,17 @@ static PyObject * read_string(char *name)
 
     i = 0;
 	new_list = PyList_New(m*n) ;
-
 	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, variable_from_scilab);
-
+	
 	if(sciErr.iErr)
 	{
-		printError(&sciErr, 0);
+		printError(&sciErr, 0) ;
+		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
 	}
     
-    for (x = 1; x <= m; x++)
+    for (x = 0; x < m; x++)
     {
-        for (y = 1; y <= n; y++)
+        for (y = 0; y < n; y++)
         {
             char *tmpStr = variable_from_scilab[x * m + y] ;
 			PyList_SET_ITEM(new_list, i, Py_BuildValue("s", tmpStr)) ;
@@ -335,7 +336,7 @@ static PyObject * read_string(char *name)
             i++;
         }
     }
-
+	
     return new_list ;
 }
 
