@@ -20,8 +20,15 @@ INSTALL
 
 LINUX
 
-$ ./setup build
-$ ./setup install
+$ ./setup.py build
+$ sudo ./setup.py install
+
+UBUNTU
+
+$ ./setup.py build
+$ sudo ./setup.py install --install-layout=deb 
+
+$ ./setup
 
 WINDOWS
 
@@ -32,6 +39,7 @@ RUN
 ===
 
 LINUX
+-----
 
 the LD_LIBRARY_PATH environment variable must be set, for instance to
 
@@ -42,7 +50,31 @@ export SCI=/usr/share/scilab
 
 See http://www.scilab.org/product/man/compile_and_run_call_scilab.html 
 
+
+UBUNTU
+------
+
+it is not possible to set LD_LIBRARY_PATH 
+globally so you have to create a file sciscipy.conf in 
+/etc/ld.so.conf.d:
+
+$ cat /etc/ld.so.conf.d/sciscipy.conf 
+/usr/lib/scilab
+/usr/lib/jvm/java-6-openjdk/jre/lib/i386/native_threads/
+/usr/lib/jvm/java-6-openjdk/jre/lib/i386/
+/usr/lib/jvm/java-6-openjdk//jre/lib/i386/server/
+
+You also have to define the SCI environment variable in 
+/etc/environment :
+
+$ cat /etc/environment 
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/b
+in:/usr/games"
+SCI="/usr/share/scilab"
+
+
 WINDOWS
+-------
 
 must include C:\Program Files (x86)\scilab-5.2.1\bin in the path
 
