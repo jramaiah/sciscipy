@@ -54,6 +54,7 @@ from threading import Thread
 from ConfigParser import ConfigParser
 
 import os
+import sys
 import time
 
 DFLT_CONFIG = "scilab.cfg"
@@ -75,7 +76,7 @@ def update_scilab_func(filename = None):
 	"""
 	assert isinstance(filename, (type(None), str)), "Wrong filename"
 	if filename == None:
-		filename = os.path.join(os.path.split(__file__)[0], DFLT_CONFIG)
+		filename = os.path.join (sys.prefix, 'share', 'sciscipy', DFLT_CONFIG)
 	
 	if not os.path.exists(filename):
 		raise ValueError, "can not open file: " + filename

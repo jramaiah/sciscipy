@@ -119,6 +119,6 @@ setup (	name = 'sciscipy',
 		long_description = long_description,
        	ext_modules = [module1],
         py_modules = ['scilab'], 
-		data_files = [(os.path.join('Lib', 'site-packages'), ['scilab.cfg'])],
+		data_files = [('share/sciscipy', ['scilab.cfg'])],
         cmdclass = { 'test': TestCommand}
 )
