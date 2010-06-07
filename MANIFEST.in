@@ -3,4 +3,5 @@ include *.h
 recursive-include tests *.py
 include MANIFEST.in
 include COPYING
+include scilab.cfg
 

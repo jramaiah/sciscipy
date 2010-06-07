@@ -56,27 +56,25 @@ sciscipy_read (PyObject *self, PyObject *args)
 {
 	char *name ;
 	char er_msg[BUFSIZE] ;
-
-	struct sciconv_read_struct *conv = sciconv_read_list ;
-	int var_type ;
+	SciErr sciErr ;
 	
+	int var_type ;
+	int *addr ;
 
 	if ( !PyArg_ParseTuple (args, "s", &name) )
-		return NULL ;
-		
-	var_type = read_sci_type(name) ;
-	
-	while (conv)
 	{
-		if (conv->scitype == var_type)
-			return conv->conv_func(name) ;
-		conv = conv->next ;
+		PyErr_SetString(PyExc_TypeError, "argument must be a string") ;
+		return NULL ;
+	}	
+	var_type = read_sci_type(name) ;
+	sciErr = getVarAddressFromName(pvApiCtx, name, &addr) ;
+	if (sciErr.iErr)
+	{
+		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+		return 0; 
 	}
-
-	snprintf(er_msg, BUFSIZE, "Type %i not supported", var_type) ;
-	PyErr_SetString(PyExc_TypeError, er_msg) ;
-	return NULL ;
-
+	
+	return sciconv_read (addr, var_type) ;
 
 } ;
 

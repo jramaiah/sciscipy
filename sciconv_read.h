@@ -32,7 +32,7 @@
 
 struct sciconv_read_struct 
 {
-	PyObject * (*conv_func)(char *) ;  	
+	PyObject * (*conv_func)(int *) ;  	
 	int scitype ;
 	struct sciconv_read_struct *next ;
 } ;
@@ -41,5 +41,7 @@ struct sciconv_read_struct
 extern struct sciconv_read_struct* sciconv_read_list ;
 
 void sciconv_read_init(void) ;
+// Generic read a scilab variable given its address and type
+PyObject * sciconv_read (int *addr, int var_type) ;
 
 #endif 

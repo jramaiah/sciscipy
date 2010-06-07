@@ -38,7 +38,6 @@ class test_matrix(unittest.TestCase):
         y = sci.read("x")
         sci.write("z", y)
         w = sci.read("z")
-        
         if numpy_is_avail:
             assert(numpy.alltrue(numpy.equal(y, w)))
         else:

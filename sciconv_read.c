@@ -47,6 +47,28 @@
 
 struct sciconv_read_struct *sciconv_read_list = NULL ;
 
+PyObject *
+sciconv_read (int *addr, int var_type)
+{
+	char er_msg[BUFSIZE] ;
+	
+	struct sciconv_read_struct *conv = sciconv_read_list ;
+	
+	while (conv)
+	{
+		if (conv->scitype == var_type)
+			return conv->conv_func(addr) ;
+		conv = conv->next ;
+	}
+
+	snprintf(er_msg, BUFSIZE, "Type %i not supported", var_type) ;
+	PyErr_SetString(PyExc_TypeError, er_msg) ;
+	return NULL ;
+
+
+} ;
+
+
 #if NUMPY == 1
 static PyObject * create_numpyarray(double *cxtmp, int m, int n)
 {
@@ -206,68 +228,83 @@ static PyObject * create_listmatrix(double *cxtmp,  double *cxtmp_img, int m, in
  * @param name: the name of the scilab variable we want to read
  * @return: A list of list 
 */
-static PyObject * read_matrix(char *name)
+static PyObject * read_matrix(int *addr)
 {	
 
     int m, n ;
 	SciErr sciErr ;
  	double *cxtmp = NULL ;
+	double *cx = NULL, *cx_img = NULL;
 	double *cxtmp_img = NULL ;
  	PyObject * matrix ;
+	int * other_addr = NULL;
     
-    if (is_real(name)) 
+	
+    if (!isVarComplex(pvApiCtx, addr)) 
     {
-		sciErr = readNamedMatrixOfDouble(pvApiCtx, name, &m, &n, NULL);
+		sciErr = getMatrixOfDouble(pvApiCtx, addr, &m, &n, NULL) ;
     } 
     else
     {
-		sciErr = readNamedComplexMatrixOfDouble(pvApiCtx, name, &m, &n, NULL, NULL);
+		sciErr = getComplexMatrixOfDouble(pvApiCtx, addr, &m, &n, NULL, NULL) ;
     }
 
 	if(sciErr.iErr)
 	{
-			printError(&sciErr, 0);
+			PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+			return 0; 
 	}
 
 
-	cxtmp = (double*)malloc((m*n)*sizeof(double));
-    if (!is_real(name)) 
-	{
-			cxtmp_img = (double*)malloc((m*n)*sizeof(double));
-	}
+	cx = (double*)malloc((m*n)*sizeof(double));
 
- 	if (!cxtmp)
+ 	if (!cx)
  	{
  		PyErr_SetString(PyExc_MemoryError, "out of memory") ;
  		return NULL ;
  	}
    
-    if (is_real(name)) 
+    if (!isVarComplex(pvApiCtx, addr)) 
     {
-		sciErr = readNamedMatrixOfDouble(pvApiCtx, name, &m, &n, cxtmp);
+		sciErr = getMatrixOfDouble(pvApiCtx, addr, &m, &n, &cxtmp) ;
 		if (sciErr.iErr)
 		{	
-			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; return 0; 
+			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; 
+			return 0; 
 		}
+		
+		memcpy(cx, cxtmp, sizeof(double) * n * m) ;
 #if NUMPY == 1
-        matrix = create_numpyarray(cxtmp, m, n) ;
+        matrix = create_numpyarray(cx, m, n) ;
 #else
-		matrix = create_listmatrix(cxtmp, NULL, m, n) ;
+		matrix = create_listmatrix(cx, NULL, m, n) ;
 #endif
 
     }
     else
     {
-		sciErr = readNamedComplexMatrixOfDouble(pvApiCtx, name, &m, &n, cxtmp, cxtmp_img);
+		cx_img = (double*)malloc((m*n)*sizeof(double));
+		
+		if (!cx_img)
+		{
+			free(cxtmp) ;
+			PyErr_SetString(PyExc_MemoryError, "out of memory") ;
+			return NULL ;
+		}
+		sciErr = getComplexMatrixOfDouble(pvApiCtx, addr, &m, &n, &cxtmp, &cxtmp_img) ;
 		if (sciErr.iErr)
 		{	
-			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; return 0; 
+			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ;
+			return 0; 
 		}
+		
+		memcpy(cx, cxtmp, sizeof(double) * n * m) ;
+		memcpy(cx_img, cxtmp_img, sizeof(double) * n * m) ;
 
 #if NUMPY == 1
-		matrix = create_cnumpyarray(cxtmp, cxtmp_img, m, n) ;
+		matrix = create_cnumpyarray(cx, cx_img, m, n) ;
 #else
-		matrix = create_listmatrix(cxtmp, cxtmp_img, m, n) ;
+		matrix = create_listmatrix(cx, cx_img, m, n) ;
 #endif
     }
 
@@ -280,7 +317,7 @@ static PyObject * read_matrix(char *name)
  * @param name: the name of the scilab variable we want to read
  * @return: A list of string
 */
-static PyObject * read_string(char *name)
+static PyObject * read_string(int *addr)
 {	
 
     int m = 0, n = 0 ;
@@ -290,23 +327,21 @@ static PyObject * read_string(char *name)
     char ** variable_from_scilab = NULL ;
 	SciErr sciErr;
 	
-	sciErr = readNamedMatrixOfString(pvApiCtx,name,&m, &n, NULL, NULL);
-	
+	sciErr = getMatrixOfString(pvApiCtx, addr, &m, &n, NULL, NULL) ;
 	if(sciErr.iErr)
 	{
-		printError(&sciErr, 0);
-		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
+		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+		return 0; 
 	}
 
 	int *piLen = (int*)malloc(sizeof(int) * m * n);
 
     PyObject *new_list ;
-	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, NULL);
-	
+	sciErr = getMatrixOfString(pvApiCtx, addr, &m, &n, piLen, NULL) ;
 	if(sciErr.iErr)
 	{
-		printError(&sciErr, 0);
-		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
+		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+		return 0; 
 	}
 
     variable_from_scilab = (char **) malloc(sizeof(char*)* (m*n)) ;
@@ -318,12 +353,11 @@ static PyObject * read_string(char *name)
 
     i = 0;
 	new_list = PyList_New(m*n) ;
-	sciErr = readNamedMatrixOfString(pvApiCtx, name, &m, &n, piLen, variable_from_scilab);
-	
+	sciErr = getMatrixOfString(pvApiCtx, addr, &m, &n, piLen, variable_from_scilab) ;
 	if(sciErr.iErr)
 	{
-		printError(&sciErr, 0) ;
-		PyErr_SetString(PyExc_TypeError, "Error in read_string") ; return 0; 
+		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+		return 0; 
 	}
     
     for (x = 0; x < m; x++)
@@ -340,6 +374,45 @@ static PyObject * read_string(char *name)
     return new_list ;
 }
 
+/** 
+ * Type 16 : tlist (typed list). 
+ * @param tlist_address: the address of the scilab variable we want to read
+ * @return: A dictionary
+*/
+static PyObject * read_tlist(int *tlist_address)
+{	
+	SciErr sciErr ;
+	int nb_item = 0, i;
+		
+	sciErr = getListItemNumber(pvApiCtx, tlist_address, &nb_item) ;
+	if (sciErr.iErr)
+		goto handle_error ;
+	printf("nb_item: %i\n", nb_item) ;
+	for (i = 1 ; i <= nb_item; ++i)
+	{
+			PyObject *py_item ;
+			int *item_address = NULL ;
+			int sci_type = 0 ;
+			
+			sciErr = getListItemAddress(pvApiCtx, tlist_address, i, &item_address) ;
+			if (sciErr.iErr)
+				goto handle_error ;
+			sciErr = getVarType(pvApiCtx, item_address, &sci_type) ;
+			if (sciErr.iErr)
+				goto handle_error ;
+			py_item = sciconv_read (item_address, sci_type) ;
+			printf("%i : %i\n", i, sci_type) ;
+	}
+	
+
+	
+	
+    PyErr_SetString(PyExc_TypeError, "Not finished yet") ; return 0; 
+	
+handle_error:
+	PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ;
+	return 0; 
+}
 
 /**
  * Add a new converter to the list
@@ -372,6 +445,7 @@ static void sciconv_read_add(int new_type, PyObject*(*func)(char*))
 void sciconv_read_init(void)
 {
 	// Most used should come last
+	sciconv_read_add(16, read_tlist) ;
 	sciconv_read_add(10, read_string) ;
 	sciconv_read_add(1, read_matrix) ;
 

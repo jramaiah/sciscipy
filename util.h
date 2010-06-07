@@ -1,7 +1,7 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#undef HAVE_STRERRO
+#undef HAVE_STRERROR
 #undef SIZEOF_LONG
 
 #include "call_scilab.h"
