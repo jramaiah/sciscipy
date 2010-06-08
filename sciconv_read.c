@@ -237,8 +237,6 @@ static PyObject * read_matrix(int *addr)
 	double *cx = NULL, *cx_img = NULL;
 	double *cxtmp_img = NULL ;
  	PyObject * matrix ;
-	int * other_addr = NULL;
-    
 	
     if (!isVarComplex(pvApiCtx, addr)) 
     {
@@ -376,18 +374,30 @@ static PyObject * read_string(int *addr)
 
 /** 
  * Type 16 : tlist (typed list). 
+ *
+ * A tlist x = tlist(['test','a','b'],12,'item')
+ * is transformed in python in
+ * x = { "__tlist_name" : "test",
+ *       "a" : 12,
+ *       "b" : "item",
+ *     }
+ *
  * @param tlist_address: the address of the scilab variable we want to read
  * @return: A dictionary
 */
 static PyObject * read_tlist(int *tlist_address)
 {	
 	SciErr sciErr ;
+	PyObject *new_dict = NULL ;
+	PyObject *key_list = NULL ;
 	int nb_item = 0, i;
-		
+	char key[80] ;
+	
 	sciErr = getListItemNumber(pvApiCtx, tlist_address, &nb_item) ;
 	if (sciErr.iErr)
 		goto handle_error ;
-	printf("nb_item: %i\n", nb_item) ;
+
+	new_dict = PyDict_New() ;
 	for (i = 1 ; i <= nb_item; ++i)
 	{
 			PyObject *py_item ;
@@ -401,13 +411,34 @@ static PyObject * read_tlist(int *tlist_address)
 			if (sciErr.iErr)
 				goto handle_error ;
 			py_item = sciconv_read (item_address, sci_type) ;
-			printf("%i : %i\n", i, sci_type) ;
+			if (i==1)
+			{
+				if (sci_type != 10)
+				{
+					PyErr_SetString(PyExc_TypeError, "First tlist item must be string") ;
+					return 0 ;
+				}
+				
+				key_list = py_item ;
+				PyDict_SetItem(new_dict,Py_BuildValue("s", "__tlist_name"), \
+													PyList_GetItem(key_list, i - 1)) ;
+				
+			}
+			else
+			{
+				PyObject *next_item = NULL ;
+				next_item = PyList_GetItem(key_list, i - 1) ;
+				if (next_item == NULL)
+				{
+					PyErr_SetString(PyExc_TypeError, "Cannot read tlist (wrong number of key)") ;
+					return 0 ;
+				}
+				PyDict_SetItem(new_dict, PyList_GetItem(key_list, i - 1), py_item) ;
+			}	
 	}
 	
-
 	
-	
-    PyErr_SetString(PyExc_TypeError, "Not finished yet") ; return 0; 
+    return new_dict; 
 	
 handle_error:
 	PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ;
