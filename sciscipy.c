@@ -90,7 +90,6 @@ sciscipy_write (PyObject *self, PyObject *args)
 		return NULL ;
 
 	Py_INCREF(Py_None) ;
-
 	conv = sciconv_write_list ;
 
 	while (conv)
@@ -101,7 +100,6 @@ sciscipy_write (PyObject *self, PyObject *args)
 			if (er > 0) // success
 				return Py_None ;
 		}
-	
 		conv = conv->next ;
 	}
 

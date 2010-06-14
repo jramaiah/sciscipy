@@ -27,10 +27,19 @@
 #include "numpy/arrayobject.h"
 #endif
 
+typedef enum {	NUMPY_ARRAY,
+				LISTOFLIST, 
+				LISTOFDOUBLE, 
+				LISTOFSTRING, 
+				TLIST
+			   } WRITETYPE_t ;
+
+
 struct sciconv_write_struct 
 {
 	int (*conv_func)(char*, PyObject*) ;	// Create a new variable in scilab  	
 	int (*test_func)(PyObject*) ;			// Return one if this structure can handle the PyObject
+	WRITETYPE_t write_type ;				// Identifier for the type
 	struct sciconv_write_struct *next ;
 } ;
 

@@ -420,7 +420,7 @@ static PyObject * read_tlist(int *tlist_address)
 				}
 				
 				key_list = py_item ;
-				PyDict_SetItem(new_dict,Py_BuildValue("s", "__tlist_name"), \
+				PyDict_SetItem(new_dict,Py_BuildValue("s", TLIST_NAME), \
 													PyList_GetItem(key_list, i - 1)) ;
 				
 			}

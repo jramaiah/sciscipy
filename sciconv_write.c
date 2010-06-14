@@ -264,11 +264,11 @@ static int write_listofdouble(char *name, PyObject *obj)
 
     if (is_complex_found) 
 	{
-		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, new_vec, new_vec_img);
+		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, n, m, new_vec, new_vec_img);
     } 
 	else 
 	{
-		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, new_vec);
+		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, n, m, new_vec);
 		if(sciErr.iErr)
 		{
 			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
@@ -411,19 +411,104 @@ static int test_numpy(PyObject *obj)
 }
 #endif
 
+static int write_tlist(char *name, PyObject *obj)
+{
+	int nb_item ;
+	int *tlist_address ;
+	SciErr sciErr ;
+	nb_item = PyDict_Size(obj) - 1 ;
+	sciErr = createNamedTList(pvApiCtx, name, nb_item, &tlist_address) ;
+	PyObject *key, *value;
+	Py_ssize_t pos = 0;
+	PyObject *py_str_to_create = PyString_FromString("[") ;
+	PyObject *py_value_str = PyString_FromString("") ;
+	printf("Entering write 1\n") ;
+	if(sciErr.iErr)
+	{
+		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
+		return -1; 
+	}
+	printf("Entering write 2\n") ;
+	
+	//  py_str_tocreate = 
+	//    ['a_name', 'var1', ..., 'varN']
+	while (PyDict_Next(obj, &pos, &key, &value))
+	{
+		char *str_key = NULL ;
+		if (!PyString_Check(key))
+			return -1 ;
+			
+		str_key = PyString_AsString(key) ;
+		
+		if (strcmp(str_key, TLIST_NAME) == 0)
+		{
+			if (!PyString_Check(value))
+				return -1 ;
+			PyString_Concat(&py_str_to_create,  PyString_FromString("\"")) ;
+			PyString_Concat(&py_str_to_create, value) ;
+			PyString_Concat(&py_str_to_create,  PyString_FromString("\"")) ;
+		}
+		printf("Entering write i\n") ;
+	}
+	printf("Entering write 3\n") ;
+	pos = 0 ;
+	while (PyDict_Next(obj, &pos, &key, &value))
+	{
+		char *str_key = NULL ;
+		if (!PyString_Check(key))
+			return -1 ;
+			
+		str_key = PyString_AsString(key) ;
+		if (strcmp(str_key, TLIST_NAME) != 0)
+		{
+			char rnd_name[BUFSIZE] ;
+			PyString_Concat(&py_str_to_create,  PyString_FromString(",\"")) ;
+			PyString_Concat(&py_str_to_create, key) ;
+			PyString_Concat(&py_str_to_create,  PyString_FromString("\"")) ;
+			// TODO
+			// write(rnd_name, value)
+			snprintf(rnd_name,BUFSIZE - 1, ",rnd_var__%i", rand()) ;
+			PyString_Concat(&py_value_str, PyString_FromString(rnd_name)) ;
+		}
+	}
+	PyString_Concat(&py_str_to_create, PyString_FromString("]")) ;
+	printf("%s = tlist(%s%s)\n", name, PyString_AsString(py_str_to_create), PyString_AsString(py_value_str)) ;
+	// creates a string name = tlist(['a_name', 'var1', ..., 'varN'], var1,..., varN)
+	// eval the string
+	
+	return 1 ;
+}
+
+static int test_dict_tlist(PyObject *obj)
+{
+ PyObject *py_list_name = PyString_FromString(TLIST_NAME) ;
+ if (PyDict_Check(obj) && PyDict_Contains(obj, py_list_name))
+ {
+	sci_debug("[sciconv_write] Match for tlist\n") ;
+	Py_DECREF(py_list_name) ;
+	return 1 ;
+ }
+ else
+ {
+	Py_DECREF(py_list_name) ;
+	return -1 ;
+ }
+}
+
+
 /**
  * Add a new converter to the list
  * @param new_type: A scilab type number
  * @param func: The converter function
 */
-static void sciconv_write_add(int (*test_func)(PyObject*), int(*func)(char*, PyObject *))
+static void sciconv_write_add(int (*test_func)(PyObject*), int(*func)(char*, PyObject *), WRITETYPE_t id)
 {
 	struct sciconv_write_struct *new_conv = \
 		(struct sciconv_write_struct*) malloc(sizeof(struct sciconv_write_struct)) ;
 
 	new_conv->test_func = test_func ;
 	new_conv->conv_func = func ;
-
+	new_conv->write_type = id ;
 	if (sciconv_write_list == NULL)
 	{
 		sciconv_write_list = new_conv ;
@@ -444,10 +529,11 @@ void sciconv_write_init(void)
 	// The one added first is the one tested first
 	// so the order can be important
 #if NUMPY == 1 
-	sciconv_write_add(test_numpy, write_numpy) ;
+	sciconv_write_add(test_numpy, write_numpy, NUMPY_ARRAY) ;
 #endif
-	sciconv_write_add(test_listoflist, write_listoflist) ;
-	sciconv_write_add(test_listofdouble, write_listofdouble) ;
-	sciconv_write_add(test_listofstring, write_listofstring) ;
+	sciconv_write_add(test_listoflist, write_listoflist, LISTOFLIST) ;
+	sciconv_write_add(test_listofdouble, write_listofdouble, LISTOFDOUBLE) ;
+	sciconv_write_add(test_listofstring, write_listofstring, LISTOFSTRING) ;
+	sciconv_write_add(test_dict_tlist, write_tlist, TLIST) ;
 }
 

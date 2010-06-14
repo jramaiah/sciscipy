@@ -9,6 +9,8 @@
 
 #define BUFSIZE 1024
 
+#define TLIST_NAME	"__tlist_name"
+
 /*
  * This has to be defined when a numpy extension
  * is split accross multiple files
