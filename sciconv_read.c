@@ -266,8 +266,9 @@ static PyObject * read_matrix(int *addr)
     {
 		sciErr = getMatrixOfDouble(pvApiCtx, addr, &m, &n, &cxtmp) ;
 		if (sciErr.iErr)
-		{	
-			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ; 
+		{
+            free(cx);
+			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ;
 			return 0; 
 		}
 		
@@ -285,13 +286,16 @@ static PyObject * read_matrix(int *addr)
 		
 		if (!cx_img)
 		{
+			free(cx) ;
 			free(cxtmp) ;
 			PyErr_SetString(PyExc_MemoryError, "out of memory") ;
 			return NULL ;
 		}
 		sciErr = getComplexMatrixOfDouble(pvApiCtx, addr, &m, &n, &cxtmp, &cxtmp_img) ;
 		if (sciErr.iErr)
-		{	
+		{
+			free(cx) ;
+            free(cx_img);
 			PyErr_SetString(PyExc_TypeError, "Error in readmatrix") ;
 			return 0; 
 		}
@@ -304,8 +308,9 @@ static PyObject * read_matrix(int *addr)
 #else
 		matrix = create_listmatrix(cx, cx_img, m, n) ;
 #endif
+        free(cx_img);
     }
-
+    
     return matrix ;
 }
 

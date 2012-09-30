@@ -129,8 +129,10 @@ static int write_listoflist(char *name, PyObject *obj)
 		return -1 ;
 
 	new_vec_img = (double*) calloc(sizeof(double)*m*n, 1) ;
-	if (!new_vec_img)
+	if (!new_vec_img) {
+        free(new_vec);
 		return -1 ;
+    }
 
     for (i = 0; i < m; i++)
 	{	
@@ -165,19 +167,28 @@ static int write_listoflist(char *name, PyObject *obj)
     if (is_complex_found) 
 	{
 		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, new_vec, new_vec_img);
-    } 
-	else 
+        free(new_vec_img);
+        free(new_vec);
+        if(sciErr.iErr)
+        {
+            printError(&sciErr, 0);
+            Scierror(999, "Cannot create complex variable '%s'.\n", name);
+            return 0;
+        }
+
+    }
+	else
 	{
 		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, new_vec);
+        free(new_vec) ;
+        free(new_vec_img) ;
 		if(sciErr.iErr)
 		{
-			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
+			PyErr_SetString(PyExc_TypeError, "Error in Writematrix");
+            return 0;
 		}
 	}
-	
-    free(new_vec) ;
-	
-	return 1 ;
+    return 1 ;
 }
 
 static int test_listoflist(PyObject *obj)
@@ -235,7 +246,10 @@ static int write_listofdouble(char *name, PyObject *obj)
 	new_vec_img = (double*) calloc(sizeof(double)*m, 1) ;
 	
 	if (!new_vec_img)
+    {
+        free(new_vec);
 		return -1 ;
+    }
 
     for (i = 0; i < m; i++)
 	{	
@@ -258,6 +272,7 @@ static int write_listofdouble(char *name, PyObject *obj)
         sci_debug("[write_listofdouble] something found" \
                                 "that is not real or complex") ;
         free(new_vec) ;
+        free(new_vec_img) ;
         return -1 ;
     }
 
@@ -265,18 +280,26 @@ static int write_listofdouble(char *name, PyObject *obj)
     if (is_complex_found) 
 	{
 		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, n, m, new_vec, new_vec_img);
+        free(new_vec);
+        free(new_vec_img);
+        if(sciErr.iErr)
+        {
+            printError(&sciErr, 0);
+            Scierror(999, "Cannot create complex variable '%s'.\n", name);
+            return 0;
+        }
     } 
 	else 
 	{
 		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, n, m, new_vec);
+        free(new_vec);
+        free(new_vec_img);
 		if(sciErr.iErr)
 		{
 			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
 		}
 	}
-	
-    free(new_vec) ;
-	
+
 	return 1 ;
 
 }
@@ -358,11 +381,12 @@ static int write_numpy(char *name, PyObject *obj)
                                             j*array->strides[1]) ;
 	
 		sciErr = createNamedMatrixOfDouble(pvApiCtx, name, m, n, data);
+        free(data);
 		if(sciErr.iErr)
 		{
-			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ; return 0; 
+			PyErr_SetString(PyExc_TypeError, "Error in Writematrix") ;
+            return 0; 
 		}
-        free(data) ;
 
         return 1 ;
     } 
@@ -375,6 +399,7 @@ static int write_numpy(char *name, PyObject *obj)
         if (!data)
         {
             sci_error("[sciconv_write] out of memory\n") ;
+            free(data_img);
             return -1 ;
         }
 
@@ -389,6 +414,15 @@ static int write_numpy(char *name, PyObject *obj)
         }
 
 		sciErr = createNamedComplexMatrixOfDouble(pvApiCtx, name, m, n, data, data_img);
+        if(sciErr.iErr)
+        {
+            printError(&sciErr, 0);
+            free(data);
+            free(data_img);
+            Scierror(999, "Cannot create complex variable '%s'.\n", name);
+            return 0;
+        }
+
 
         free(data) ;
         free(data_img) ;
