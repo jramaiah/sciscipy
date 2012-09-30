@@ -1,5 +1,6 @@
-This package create a python module called sciscipy
-It provides a link between python and scilab by defining 
+This package creates a python module called sciscipy.
+
+It provides a link between python and Scilab by defining 
 3 functions:
 
 - sciscipy.eval(sci_cmd)
@@ -8,7 +9,7 @@ It provides a link between python and scilab by defining
 
 To increase the level of enjoyment, a python module 
 called scilab is also provided. This package contains a 
-class 'Scilab' that can be used to issue any valid scilab 
+class 'Scilab' that can be used to issue any valid Scilab 
 command. Use it as follows:
 
 >>> from scilab import Scilab
@@ -23,7 +24,7 @@ LINUX
 $ ./setup.py build
 $ sudo ./setup.py install
 
-UBUNTU
+Debian/Ubuntu
 
 $ ./setup.py build
 $ sudo ./setup.py install --install-layout=deb 
@@ -34,6 +35,10 @@ WINDOWS
 
 c:\Python26\python.exe setup.py build --compiler=mingw32
 c:\Python26\python.exe setup.py build install
+
+
+To build with an other compiler (ex: clang)
+$ CC=clang python setup.py build
 
 RUN
 ===
@@ -48,10 +53,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/java-6-openjdk/jre/lib/amd6
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/scilab
 export SCI=/usr/share/scilab
 
-See http://www.scilab.org/product/man/compile_and_run_call_scilab.html 
+See http://help.scilab.org/docs/current/en_US/compile_and_run_call_scilab.html
 
 
-UBUNTU
+Ubuntu
 ------
 
 it is not possible to set LD_LIBRARY_PATH 
