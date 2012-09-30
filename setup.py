@@ -29,6 +29,7 @@ elif os.name == 'posix':
 			  ]
 	sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
 	sci_librairies = ['scilab']
+        sci_extra_link_args = ['-Wl,--no-as-needed']
 else:
 	raise NotImplementedError, "Only 'nt' and 'posix' are supported"
 	
@@ -36,7 +37,7 @@ sci_sources = ['sciscipy.c', 'sciconv_read.c', 'sciconv_write.c', 'util.c']
 
 if os.environ.get('SCI'):
 	common_include_base_call=os.path.join("/",os.environ.get('SCI'),"..","..","include","scilab")
-
+        sci_include.append(os.path.join("/", common_include_base_call))
 	sci_include.append(os.path.join("/", common_include_base_call, "core"))
 	sci_include.append(os.path.join("/",common_include_base_call, "call_scilab"))
 	sci_lib_dir.append(os.path.join("/",os.environ.get('SCI'),"..","..","lib","scilab"))
@@ -93,6 +94,7 @@ module1 = Extension('sciscipy',
 			include_dirs = sci_include,
 			libraries = sci_librairies,
 			library_dirs = sci_lib_dir,
+			extra_link_args = sci_extra_link_args,
 			define_macros = list_of_macros
 )
 
@@ -106,8 +108,8 @@ x = sci.rand(20, 20)
 y = x*x.transpose()
 y_inv = sci.inv(y)
 
-The function func in sci.func(x, y) can be a scilab built-in or any user 
-defined function so that scilab libraries can be reused easily in python.
+The function func in sci.func(x, y) can be a Scilab built-in or any user 
+defined function so that Scilab libraries can be reused easily in python.
 """
 setup (	name = 'sciscipy',
        	version = '0.4.0',
