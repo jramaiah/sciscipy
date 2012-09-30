@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     Copyright (c) 2009, Vincent Guffens.
 */
 #include <Python.h>
@@ -24,25 +24,31 @@
 #include "deallocator.h"
 #include "call_scilab.h"
 
-static int Initialize(void)  
+static int Initialize(void)
 {
-	int res ;
+    int res ;
 #ifdef _MSC_VER
     res = StartScilab(NULL, NULL, 0) == FALSE ;
 #else
-	if (getenv("SCI") != NULL)
-    	res = StartScilab(getenv("SCI"), NULL, 0) ;
-	else
-		{
-			char sci[sci_max_len] ;
-			res = StartScilab(get_SCI(sci), NULL, 0) ;
-		}
+    if (getenv("SCI") != NULL)
+    {
+        res = StartScilab(getenv("SCI"), NULL, 0) ;
+    }
+    else
+    {
+        char sci[sci_max_len] ;
+        res = StartScilab(get_SCI(sci), NULL, 0) ;
+    }
 #endif
 
-	if (res == FALSE)
+    if (res == FALSE)
+    {
         return -1;
-	else
-		return 0 ;
+    }
+    else
+    {
+        return 0 ;
+    }
 }
 
 /* Python interface */
@@ -50,77 +56,83 @@ static int Initialize(void)
 static PyObject *
 sciscipy_read (PyObject *self, PyObject *args)
 {
-	char *name ;
-	SciErr sciErr ;
-	
-	int var_type ;
-	int *addr ;
+    char *name ;
+    SciErr sciErr ;
 
-	if ( !PyArg_ParseTuple (args, "s", &name) )
-	{
-		PyErr_SetString(PyExc_TypeError, "argument must be a string") ;
-		return NULL ;
-	}	
-	var_type = read_sci_type(name) ;
-	sciErr = getVarAddressFromName(pvApiCtx, name, &addr) ;
-	if (sciErr.iErr)
-	{
-		PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ; 
-		return 0; 
-	}
-	
-	return sciconv_read (addr, var_type) ;
+    int var_type ;
+    int *addr ;
+
+    if ( !PyArg_ParseTuple (args, "s", &name) )
+    {
+        PyErr_SetString(PyExc_TypeError, "argument must be a string") ;
+        return NULL ;
+    }
+    var_type = read_sci_type(name) ;
+    sciErr = getVarAddressFromName(pvApiCtx, name, &addr) ;
+    if (sciErr.iErr)
+    {
+        PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ;
+        return 0;
+    }
+
+    return sciconv_read (addr, var_type) ;
 
 } ;
 
 static PyObject *
 sciscipy_write (PyObject *self, PyObject *args)
 {
-	char *name ;
-	PyObject *obj ;
-	int er ;
-	struct sciconv_write_struct *conv ; 
+    char *name ;
+    PyObject *obj ;
+    int er ;
+    struct sciconv_write_struct *conv ;
 
-	if (!PyArg_ParseTuple (args, "sO", &name, &obj))
-		return NULL ;
+    if (!PyArg_ParseTuple (args, "sO", &name, &obj))
+    {
+        return NULL ;
+    }
 
-	Py_INCREF(Py_None) ;
-	conv = sciconv_write_list ;
+    Py_INCREF(Py_None) ;
+    conv = sciconv_write_list ;
 
-	while (conv)
-	{
-		if (conv->test_func(obj) > 0)
-		{
-			er = conv->conv_func(name, obj) ;
-			if (er > 0) // success
-				return Py_None ;
-		}
-		conv = conv->next ;
-	}
+    while (conv)
+    {
+        if (conv->test_func(obj) > 0)
+        {
+            er = conv->conv_func(name, obj) ;
+            if (er > 0) // success
+            {
+                return Py_None ;
+            }
+        }
+        conv = conv->next ;
+    }
 
-	return Py_None ;	  		
+    return Py_None ;
 } ;
 
 static PyObject *
 sciscipy_eval (PyObject *self, PyObject *args)
 {
 
-	char *name ;
-	
-	if ( !PyArg_ParseTuple (args, "s", &name) )
-		return NULL ;
-	
-	SendScilabJob(name);
-	
-//	while ( ScilabHaveAGraph() )
-//	{
-//		Py_BEGIN_ALLOW_THREADS
-//		ScilabDoOneEvent() ;
-//		Py_END_ALLOW_THREADS
-//	}
-	
-	Py_INCREF(Py_None);
-	return Py_None;
+    char *name ;
+
+    if ( !PyArg_ParseTuple (args, "s", &name) )
+    {
+        return NULL ;
+    }
+
+    SendScilabJob(name);
+
+    //	while ( ScilabHaveAGraph() )
+    //	{
+    //		Py_BEGIN_ALLOW_THREADS
+    //		ScilabDoOneEvent() ;
+    //		Py_END_ALLOW_THREADS
+    //	}
+
+    Py_INCREF(Py_None);
+    return Py_None;
 
 } ;
 
@@ -131,21 +143,23 @@ static void numpy_init(void)
 #endif
 }
 
-static PyMethodDef SciscipyMethods[] = {
-    	{"eval",  sciscipy_eval, METH_VARARGS, "eval (cmd) : Execute the Scilab command cmd."},
-		{"read", sciscipy_read, METH_VARARGS, "read (sci_name): read a Scilab variable."},
-    	{"write", sciscipy_write, METH_VARARGS, "write (sci_name, py_var): Write a Scilab variable."},
-    	{NULL, NULL, 0, NULL}        /* Sentinel */
+static PyMethodDef SciscipyMethods[] =
+{
+    {"eval",  sciscipy_eval, METH_VARARGS, "eval (cmd) : Execute the Scilab command cmd."},
+    {"read", sciscipy_read, METH_VARARGS, "read (sci_name): read a Scilab variable."},
+    {"write", sciscipy_write, METH_VARARGS, "write (sci_name, py_var): Write a Scilab variable."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
 } ;
 
 #ifdef PYTHON3
-static struct PyModuleDef sciscipy = {
-	PyModuleDef_HEAD_INIT,
-   	"sciscipy",   	/* name of module */
-   	NULL, 		    /* module documentation, may be NULL */
-   	-1,       	    /* size of per-interpreter state of the module,
+static struct PyModuleDef sciscipy =
+{
+    PyModuleDef_HEAD_INIT,
+    "sciscipy",   	/* name of module */
+    NULL, 		    /* module documentation, may be NULL */
+    -1,       	    /* size of per-interpreter state of the module,
                      	   or -1 if the module keeps state in global variables. */
-   	SciscipyMethods
+    SciscipyMethods
 } ;
 #endif
 
@@ -157,37 +171,39 @@ initsciscipy(void)
 #endif
 {
 
-	int er = Initialize() ;
-	PyObject *m ;
-	if (er != 0)
-	{
-		PyErr_SetString(PyExc_TypeError, "Can not initialize scilab") ;
+    int er = Initialize() ;
+    PyObject *m ;
+    if (er != 0)
+    {
+        PyErr_SetString(PyExc_TypeError, "Can not initialize scilab") ;
 
 #ifdef PYTHON3
-		return NULL ;
+        return NULL ;
 #endif
-}
-	else
-{
+    }
+    else
+    {
         numpy_init() ;
-		sciconv_read_init() ;
-		sciconv_write_init() ;
-		
+        sciconv_read_init() ;
+        sciconv_write_init() ;
+
 #if NUMPY == 1
-		_MyDeallocType.tp_new = PyType_GenericNew ;
-		if (PyType_Ready(&_MyDeallocType) < 0)
-			PyErr_SetString(PyExc_TypeError, "Can not initialize deallocator") ;
-	
-		Py_INCREF(&_MyDeallocType);
+        _MyDeallocType.tp_new = PyType_GenericNew ;
+        if (PyType_Ready(&_MyDeallocType) < 0)
+        {
+            PyErr_SetString(PyExc_TypeError, "Can not initialize deallocator") ;
+        }
+
+        Py_INCREF(&_MyDeallocType);
 #endif
-			 
+
 
 #ifdef PYTHON3
-		return PyModule_Create(&sciscipy) ;
+        return PyModule_Create(&sciscipy) ;
 #else
         return Py_InitModule("sciscipy", SciscipyMethods) ;
-		
+
 #endif
 
-	}
+    }
 } ;

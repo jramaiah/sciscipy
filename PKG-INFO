@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
 Name: sciscipy
-Version: 0.3.0
+Version: 0.4.0
 Summary: Scilab binding
-Home-page: UNKNOWN
+Home-page: http://forge.scilab.org/index.php/p/sciscipy/
 Author: Vincent Guffens
 Author-email: vincent.guffens@gmail.com
-License: UNKNOWN
+License: GPL
 Description: UNKNOWN
 Platform: UNKNOWN
