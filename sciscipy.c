@@ -22,24 +22,20 @@
 #include "sciconv_write.h"
 #include "util.h"
 #include "deallocator.h"
-
-
-extern int StartScilab(char *SCIpath, char *ScilabStartup,int *Stacksize);
-extern int SendScilabJob(char *job); 
-
+#include "call_scilab.h"
 
 static int Initialize(void)  
 {
 	int res ;
 #ifdef _MSC_VER
-    res = StartScilab(NULL, NULL, NULL) == FALSE ;
+    res = StartScilab(NULL, NULL, 0) == FALSE ;
 #else
 	if (getenv("SCI") != NULL)
-    	res = StartScilab(getenv("SCI"), NULL, NULL) ;
+    	res = StartScilab(getenv("SCI"), NULL, 0) ;
 	else
 		{
 			char sci[sci_max_len] ;
-			res = StartScilab(get_SCI(sci), NULL, NULL) ;
+			res = StartScilab(get_SCI(sci), NULL, 0) ;
 		}
 #endif
 
@@ -55,7 +51,6 @@ static PyObject *
 sciscipy_read (PyObject *self, PyObject *args)
 {
 	char *name ;
-	char er_msg[BUFSIZE] ;
 	SciErr sciErr ;
 	
 	int var_type ;
