@@ -85,3 +85,9 @@ must include C:\Program Files (x86)\scilab-5.2.1\bin in the path
 
 and set the SCI enironment variable to C:\Program Files (x86)\scilab-5.2.1\
 
+
+Coding style
+============
+
+The coding style is done through the command:
+astyle --pad-header --suffix=none --pad-oper --indent-col1-comments --indent-switches --indent=spaces=4 --add-brackets --formatted --style=bsd *.c
