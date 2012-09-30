@@ -48,8 +48,8 @@ LINUX
 
 the LD_LIBRARY_PATH environment variable must be set, for instance to
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/:/usr/lib/jvm/java-6-openjdk//jre/lib/amd64/server/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/native_threads/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/default-java/jre/lib/amd64/:/usr/lib/jvm/default-java//jre/lib/amd64/server/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/jvm/default-java/jre/lib/amd64/native_threads/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/scilab
 export SCI=/usr/share/scilab
 
@@ -65,9 +65,9 @@ globally so you have to create a file sciscipy.conf in
 
 $ cat /etc/ld.so.conf.d/sciscipy.conf 
 /usr/lib/scilab
-/usr/lib/jvm/java-6-openjdk/jre/lib/i386/native_threads/
-/usr/lib/jvm/java-6-openjdk/jre/lib/i386/
-/usr/lib/jvm/java-6-openjdk//jre/lib/i386/server/
+/usr/lib/jvm/default-java/jre/lib/i386/native_threads/
+/usr/lib/jvm/default-java/jre/lib/i386/
+/usr/lib/jvm/default-java/jre/lib/i386/server/
 
 You also have to define the SCI environment variable in 
 /etc/environment :
