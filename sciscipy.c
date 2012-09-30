@@ -201,7 +201,7 @@ initsciscipy(void)
 #ifdef PYTHON3
         return PyModule_Create(&sciscipy) ;
 #else
-        return Py_InitModule("sciscipy", SciscipyMethods) ;
+        Py_InitModule("sciscipy", SciscipyMethods) ;
 
 #endif
 
