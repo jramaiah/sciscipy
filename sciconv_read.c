@@ -391,7 +391,6 @@ static PyObject * read_tlist(int *tlist_address)
 	PyObject *new_dict = NULL ;
 	PyObject *key_list = NULL ;
 	int nb_item = 0, i;
-	char key[80] ;
 	
 	sciErr = getListItemNumber(pvApiCtx, tlist_address, &nb_item) ;
 	if (sciErr.iErr)
