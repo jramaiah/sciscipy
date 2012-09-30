@@ -1,0 +1,11 @@
+sciscipy (0.4.0)
+
+     * Update of the documentation
+     * Use call_scilab.h include instead of extern
+     * Match the declaration from Scilab 5.3.3 and upper
+     * Remove some dead code
+     * Add the --no-as-needed option to the linker
+     * Thanks to Luca DALL'OLIO for the various comments
+
+ -- Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>  Sun, 30 Sep 2012 13:46:46 +0200
+
