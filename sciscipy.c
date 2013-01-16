@@ -172,7 +172,6 @@ initsciscipy(void)
 {
 
     int er = Initialize() ;
-    PyObject *m ;
     if (er != 0)
     {
         PyErr_SetString(PyExc_TypeError, "Can not initialize scilab") ;
