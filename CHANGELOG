@@ -1,3 +1,15 @@
+sciscipy (1.0.0)
+
+     * Update of the documentation
+     * Clean up of the Python code (pylint rocks)
+     * Update the search of scilab.cfg:
+	- current directory
+	- ../../../share/sciscipy/scilab.cfg
+	- /usr/share/sciscipy/scilab.cfg (like before)
+     * Fix some C warnings
+
+ -- Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>  Wed, 16 Jan 2013 12:16:58 +0100
+
 sciscipy (0.4.0)
 
      * Update of the documentation
