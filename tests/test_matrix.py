@@ -20,7 +20,7 @@ class test_matrix(unittest.TestCase):
             my_sum += x[i]
         
         my_other_sum = sci.read("my_sum")
-        assert(my_other_sum[0] == my_sum)        
+        assert(my_other_sum[0] == my_sum)
 
     def test_readwrite1dT(self):
         sci.eval("x=rand(100, 1)")
@@ -42,10 +42,10 @@ class test_matrix(unittest.TestCase):
             assert(numpy.alltrue(numpy.equal(y, w)))
         else:
             assert(y == w)
-            
+
     def test_bigmat(self):
         sci.eval("x=rand(1000,800)")
-        y = sci.read("x")    
+        y = sci.read("x")
         sci.write("xx", y)
         sci.eval("dist = sum((x - xx).^2)")
         dist = sci.read("dist")
