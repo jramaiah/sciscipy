@@ -92,7 +92,7 @@ TESTS
 To run the tests, the command:
 PYTHONPATH=build/lib.linux-x86_64-2.7/ python setup.py test
 should be launched.
-PYTHONPATH should be available.
+PYTHONPATH should be set if sciscipy is not installed in a system path.
 
 Coding style
 ============
