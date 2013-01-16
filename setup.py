@@ -110,7 +110,7 @@ The function func in sci.func(x, y) can be a Scilab built-in or any user
 defined function so that Scilab libraries can be reused easily in python.
 """
 setup (	name = 'sciscipy',
-       	version = '0.4.0',
+       	version = '1.0.0',
 	author = 'Vincent Guffens <vincent.guffens@gmail.com>, Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>',
 	url = "http://forge.scilab.org/index.php/p/sciscipy/",
 	license = "GPL",
