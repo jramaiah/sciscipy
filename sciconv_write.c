@@ -19,6 +19,7 @@
 
 #include "sciconv_write.h"
 #include "util.h"
+#include "Scierror.h"
 
 struct sciconv_write_struct *sciconv_write_list = NULL ;
 
