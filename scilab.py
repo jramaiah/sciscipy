@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     Copyright (c) 2009, Vincent Guffens.
 
 
@@ -26,9 +26,9 @@ Usage:
 >>> from scilab import scilab as sci
 >>> x = [1,2,3]
 >>> sci.disp(x)
- 
-    1.  
-    2.  
+
+    1.
+    2.
     3.
 
 With the help of the sciscipy module, you can also do:
@@ -42,14 +42,13 @@ Internals
 =========
 
 It uses macrovar ou fun2string to discover the number of
-output args 
+output args
 
 
 @author: vincent.guffens@gmail.com
 """
 
 from sciscipy import write, read, eval
-from functools import partial
 from threading import Thread
 from ConfigParser import ConfigParser
 
@@ -65,41 +64,43 @@ SECTION_CONFIG = "KNOWN FUNC"
 # output vars is hardcoded here
 __known_func = {}
 
-				
+# Define an exception class
 class ScilabError(Exception):
-	pass	
-	
+    pass
+
 def update_scilab_func(filename = None):
-	"""
-	Look for filename and update the dictionary L{__known_func}
-	filename is a python config file
-	"""
-	assert isinstance(filename, (type(None), str)), "Wrong filename"
-	if filename == None:
-		filename = os.path.join (sys.prefix, 'share', 'sciscipy', DFLT_CONFIG)
-	
-	if not os.path.exists(filename):
-		raise ValueError, "can not open file: " + filename
-		
-	parser = ConfigParser()
-	parser.read(filename)
-	
-	if not parser.has_section(SECTION_CONFIG):
-		raise ValueError, "Invalid config file"
-		
-	items = parser.items(SECTION_CONFIG)
-	
-	for new_func, value in items:
-			__known_func[new_func] = int(value)
-		
-		
+    """
+    Look for filename and update the dictionary L{__known_func}
+    filename is a python config file
+    """
+    assert isinstance(filename, (type(None), str)), "Wrong filename"
+
+    if filename == None:
+        filename = os.path.join (sys.prefix, 'share', 'sciscipy', DFLT_CONFIG)
+
+
+    if not os.path.exists(filename):
+        raise ValueError, "can not open file: " + filename
+
+    parser = ConfigParser()
+    parser.read(filename)
+
+    if not parser.has_section(SECTION_CONFIG):
+        raise ValueError, "Invalid config file"
+
+    items = parser.items(SECTION_CONFIG)
+
+    for new_func, value in items:
+            __known_func[new_func] = int(value)
+
+
 def run_scilab_cmd(cmd_str):
-	new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;"%cmd_str
-	eval(new_cmd)
-	ier = read("_ier_")
-	if ier != 0 and ier != [0]:
-		lasterror = read("_er_msg_")
-		raise ScilabError, lasterror
+    new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;" % cmd_str
+    eval(new_cmd)
+    ier = read("_ier_")
+    if ier != 0 and ier != [0]:
+        lasterror = read("_er_msg_")
+        raise ScilabError, lasterror
 
 
 def find_scilab_type(var_name):
@@ -110,7 +111,7 @@ def find_scilab_type(var_name):
     @type var_name: string
     @return: type(var_name)
     """
-    if type(var_name) != type(""):                    
+    if type(var_name) != type(""):
         raise TypeError, "var_name must be a string"
 
     run_scilab_cmd("_tmp1_ = type(" + var_name + ")")
@@ -118,17 +119,17 @@ def find_scilab_type(var_name):
     eval("clear _tmp1_")
 
     return res[0]
- 
+
 def find_output_param(macro_name):
     """
     Find out the number of output param of macro_name
 
-   
-    First we look in the __known_func dico to see 
+
+    First we look in the __known_func dico to see
     if we have a special case for that macro. If not,
     we use macrovar for type 13 functions. Otherwise,
     we return 1.
- 
+
     @param macro_name: the name of a scilab macro
     @type macro_name: string
     @return: number of ouput param of macro_name
@@ -145,7 +146,6 @@ def find_output_param(macro_name):
         eval("_tmp2_ = length(length(_tmp1_(2)))")
         res = read("_tmp2_")
         eval("clear _tmp1_, _tmp2_")
-    
         return int(res[0])
 
     return 1
@@ -156,20 +156,19 @@ class Functor(object):
     The attribute 'name' is the name
     of the function to call in scilab
     """
-    
+
     def __init__(self, name):
         if type(name) != type(""):
             raise TypeError, "name must be a string"
 
         self.name = name
-    
+
     def __call__(self, *args):
         """
         TODO: add a named argument outp=...
             if you want to force the number of output arguments
         """
         cmd = self.name + "("
-        num_arg = len(args)
 
         in_args = []
         for (i, arg) in enumerate(args):
@@ -178,17 +177,17 @@ class Functor(object):
             write(arg_name, arg)
 
         out = find_output_param(self.name)
-        
+
         out_args = []
         for i in range(out):
             out_args += ["__out" + str(i)]
-        
+
         if out != 0:
-            cmd = "[%s] = %s(%s)"%(",".join(out_args), 
-                                   self.name, 
-                                   ",".join(in_args)) 
+            cmd = "[%s] = %s(%s)" % (",".join(out_args),
+                                   self.name,
+                                   ",".join(in_args))
         else:
-            cmd = "%s(%s)"%(self.name, ",".join(in_args)) 
+            cmd = "%s(%s)" % (self.name, ",".join(in_args))
 
 
         run_scilab_cmd(cmd)
@@ -210,17 +209,17 @@ class Functor(object):
 class Scilab(object):
     """
     This class can call any scilab function (yeah!)
-    
-	Just instanciate an object of this class and call any
-	method to call equivalent scilab function.
-	
-	>>> sci = Scilab()
-	>>> from scilab import Scilab
-	>>> sci = Scilab()
-	>>> sci.zeros(2,2)
-	[[0.0, 0.0], [0.0, 0.0]]
-	>>>
-	"""
+
+    Just instanciate an object of this class and call any
+    method to call equivalent scilab function.
+
+    >>> sci = Scilab()
+    >>> from scilab import Scilab
+    >>> sci = Scilab()
+    >>> sci.zeros(2,2)
+    [[0.0, 0.0], [0.0, 0.0]]
+    >>>
+    """
 
     def __getattr__(self, name):
         return Functor(name)
@@ -230,22 +229,22 @@ class ScilabThread(Thread):
                 Thread.__init__(self)
                 self.func = func
                 self.daemon = True
-				
+
         def run(self):
                 self.func()
 
 def scipoll():
-	HOW_LONG = 0.1 # sec
-	while 1:
-		eval("")
-		time.sleep(HOW_LONG)
+    HOW_LONG = 0.1 # sec
+    while 1:
+        eval("")
+        time.sleep(HOW_LONG)
 
-		
+
 # Update the dictionary
-update_scilab_func()		
+update_scilab_func()
 
 # Create a convenience Scilab object
-scilab = Scilab()    
+scilab = Scilab()
 
 # Run the polling thread
 poll_thread = ScilabThread(scipoll)
