@@ -11,20 +11,18 @@ import os, sys
 if os.name == 'nt':
 	common_include_base = r"C:\Program Files (x86)\scilab-5.2.1\modules"
 	sci_include = [
-			os.path.join(common_include_base, "core", "includes"), 
+			os.path.join(common_include_base, "core", "includes"),
 			os.path.join(common_include_base, "call_scilab", "includes"),
 			os.path.join(common_include_base, "api_scilab", "includes")
 		       ]
 
-	
-	
 	sci_lib_dir =  [r"C:\Program Files (x86)\scilab-5.2.1\bin"]
 	sci_librairies = ['LibScilab', 'api_scilab']
 
 elif os.name == 'posix':
 	common_include_base = os.path.join("/","usr", "include", "scilab")
 	sci_include = [ common_include_base,
-			os.path.join(common_include_base, "core"), 
+			os.path.join(common_include_base, "core"),
 			os.path.join(common_include_base, "call_scilab")
 			  ]
 	sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
@@ -32,7 +30,7 @@ elif os.name == 'posix':
         sci_extra_link_args = ['-Wl,--no-as-needed']
 else:
 	raise NotImplementedError, "Only 'nt' and 'posix' are supported"
-	
+
 sci_sources = ['sciscipy.c', 'sciconv_read.c', 'sciconv_write.c', 'util.c']
 
 if os.environ.get('SCI'):
@@ -52,7 +50,7 @@ if sys.version_info[0] >= 3:
     list_of_macros += [('PYTHON3', 1)]
 
 # Test for numpy
-try: 
+try:
     import numpy
     import numpy.distutils.misc_util as misc
     sci_include += os.path.join(misc.get_numpy_include_dirs())
@@ -83,7 +81,7 @@ class TestCommand(Command):
                 testfiles.append('.'.join(
                     ['tests', splitext(basename(t))[0]])
                 )
-        
+
         print(testfiles)
         tests = TestLoader().loadTestsFromNames(testfiles)
         t = TextTestRunner(verbosity = 2)
@@ -108,19 +106,18 @@ x = sci.rand(20, 20)
 y = x*x.transpose()
 y_inv = sci.inv(y)
 
-The function func in sci.func(x, y) can be a Scilab built-in or any user 
+The function func in sci.func(x, y) can be a Scilab built-in or any user
 defined function so that Scilab libraries can be reused easily in python.
 """
 setup (	name = 'sciscipy',
        	version = '0.4.0',
-		author = 'Vincent Guffens',
-       	author_email = 'vincent.guffens@gmail.com',
-		url = "http://forge.scilab.org/index.php/p/sciscipy/",
-		license = "GPL",
+	author = 'Vincent Guffens <vincent.guffens@gmail.com>, Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>',
+	url = "http://forge.scilab.org/index.php/p/sciscipy/",
+	license = "GPL",
        	description = 'Scilab binding',
-		long_description = long_description,
+	long_description = long_description,
        	ext_modules = [module1],
-        py_modules = ['scilab'], 
-		data_files = [('share/sciscipy', ['scilab.cfg'])],
+        py_modules = ['scilab'],
+	data_files = [('share/sciscipy', ['scilab.cfg'])],
         cmdclass = { 'test': TestCommand}
 )
