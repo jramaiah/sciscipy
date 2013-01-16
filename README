@@ -59,7 +59,7 @@ See http://help.scilab.org/docs/current/en_US/compile_and_run_call_scilab.html
 Ubuntu
 ------
 
-it is not possible to set LD_LIBRARY_PATH 
+It is not possible to set LD_LIBRARY_PATH 
 globally so you have to create a file sciscipy.conf in 
 /etc/ld.so.conf.d:
 
@@ -85,6 +85,14 @@ must include C:\Program Files (x86)\scilab-5.2.1\bin in the path
 
 and set the SCI enironment variable to C:\Program Files (x86)\scilab-5.2.1\
 
+
+TESTS
+=====
+
+To run the tests, the command:
+PYTHONPATH=build/lib.linux-x86_64-2.7/ python setup.py test
+should be launched.
+PYTHONPATH should be available.
 
 Coding style
 ============
