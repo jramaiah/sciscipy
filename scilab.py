@@ -64,8 +64,9 @@ SECTION_CONFIG = "KNOWN FUNC"
 # output vars is hardcoded here
 __known_func = {}
 
-# Define an exception class
+
 class ScilabError(Exception):
+    """ Define an exception class """
     pass
 
 def update_scilab_func(filename = None):
@@ -103,6 +104,7 @@ def update_scilab_func(filename = None):
 
 
 def run_scilab_cmd(cmd_str):
+    """ Defines the Scilab start command (with error handle) """
     new_cmd = "_ier_ = execstr('%s', 'errcatch'); _er_msg_ = lasterror() ;" % cmd_str
     eval(new_cmd)
     ier = read("_ier_")
@@ -233,6 +235,7 @@ class Scilab(object):
         return Functor(name)
 
 class ScilabThread(Thread):
+        """ Defines the Scilab thread to start """
         def __init__(self, func):
                 Thread.__init__(self)
                 self.func = func
