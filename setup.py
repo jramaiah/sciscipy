@@ -26,8 +26,8 @@ elif os.name == 'posix':
 			os.path.join(common_include_base, "call_scilab")
 			  ]
 	sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
-	sci_librairies = ['scilab']
-        sci_extra_link_args = ['-Wl,--no-as-needed']
+	sci_librairies = []
+        sci_extra_link_args = ['-Wl,--no-as-needed',  '-lscilab',  '-lsciapi_scilab', '-lscicall_scilab', '-lscioutput_stream',  '-lscicore', '-lscilinear_algebra', '-lsciconsole', '-lscilocalization', '-lscipolynomials', '-lsciio', '-lscielementary_functions', '-lscisparse', '-lscihistory_manager', '-lscihistory_browser', '-lscigraphics', '-lscicompletion', '-lscifunctions', '-lsciboolean', '-lsciwindows_tools', '-lscitime', '-lscifftw', '-lsciintersci', '-lscidouble', '-lscicommons']
 else:
 	raise NotImplementedError, "Only 'nt' and 'posix' are supported"
 

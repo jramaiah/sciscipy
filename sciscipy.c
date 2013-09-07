@@ -124,12 +124,12 @@ sciscipy_eval (PyObject *self, PyObject *args)
 
     SendScilabJob(name);
 
-    //	while ( ScilabHaveAGraph() )
-    //	{
+    	while ( ScilabHaveAGraph() )
+    	{
     //		Py_BEGIN_ALLOW_THREADS
-    //		ScilabDoOneEvent() ;
+    		ScilabDoOneEvent() ;
     //		Py_END_ALLOW_THREADS
-    //	}
+    	}
 
     Py_INCREF(Py_None);
     return Py_None;

@@ -21,3 +21,7 @@ class test_read(unittest.TestCase):
             num = 12
         py_x = {'__tlist_name': 'test', 'a': num, 'b': ['item']}
         assert x == py_x, str(py_x) + " != tlist(['test','a','b'],12,'item')"
+
+if __name__ == '__main__':
+	unittest.main()
+
