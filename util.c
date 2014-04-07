@@ -5,7 +5,7 @@
 #include <string.h>
 #include "api_scilab.h"
 
-const int sci_max_len = 1024 ;
+#define sci_max_len 1024 
 static const char* SCI_ETC_FILE = "/etc/sciscilab" ;
 
 

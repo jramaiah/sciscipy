@@ -19,6 +19,7 @@ INSTALL
 ========
 
 LINUX
+------
 
 $ ./setup.py build
 $ sudo ./setup.py install
@@ -31,18 +32,50 @@ $ sudo ./setup.py install --install-layout=deb
 $ ./setup
 
 WINDOWS
+-------
 
-c:\Python26\python.exe setup.py build --compiler=mingw32
-c:\Python26\python.exe setup.py build install
+can be compiled with visual studio express 2008
+
+*Setting environment variables*
+
+	scilab bin folder has to be in the path
+	the "SCI" environment variable has to point toward the root scilab folder
+
+	C:\Users\vinsz>echo %SCI%
+	C:\Program Files\scilab-5.4.1\
 
 
-To build with an other compiler (ex: clang)
-$ CC=clang python setup.py build
+*Copying the cfg file in etc/sciscipy*
+
+	Create a subfolder sciscipy in the etc folder of the main scilab directory and copy the cfg file
+
+	C:\Users\vinsz>cd "C:\Program Files\scilab-5.4.1\etc\sciscipy"
+
+	C:\Program Files\scilab-5.4.1\etc\sciscipy>dir
+	 Volume in drive C has no label.
+
+	 Directory of C:\Program Files\scilab-5.4.1\etc\sciscipy
+
+	06/04/2014  11:10    <DIR>          .
+	06/04/2014  11:10    <DIR>          ..
+	05/04/2010  23:00               121 scilab.cfg
+				   1 File(s)            121 bytes
+				   2 Dir(s)  405,658,169,344 bytes free
 
 
-To clean the build:
 
-setup.py clean --all
+*building with visual c++ 2008*
+
+	in the sciscipy folder type in a cmd.exe window:
+
+	python setup.py build
+	python setup.py install
+
+
+
+	To clean the build:
+
+	setup.py clean --all
 
 
 RUN
@@ -86,9 +119,6 @@ SCI="/usr/share/scilab"
 WINDOWS
 -------
 
-must include C:\Program Files (x86)\scilab-5.2.1\bin in the path
-
-and set the SCI enironment variable to C:\Program Files (x86)\scilab-5.2.1\
 
 
 TESTS

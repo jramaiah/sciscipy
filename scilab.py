@@ -76,17 +76,10 @@ def update_scilab_func(filename = None):
     """
     assert isinstance(filename, (type(None), str)), "Wrong filename"
 
-    # Search first in the current path
-    if filename == None and os.path.isfile(DFLT_CONFIG):
-        filename = os.path.join (DFLT_CONFIG)
-
-    # Search here too: share/sciscipy/scilab.cfg
-    if filename == None:
-        filename = os.path.join (os.path.dirname(__file__), "..", "..", "..", "share", "sciscipy", DFLT_CONFIG)
-
-    if filename == None:
-        filename = os.path.join (sys.prefix, 'share', 'sciscipy', DFLT_CONFIG)
-
+    # Config file is in SCI/etc/sciscipy/scilab.cfg
+    if filename is None:
+		scilab_folder = os.getenv("SCI")
+		filename = os.path.join (scilab_folder, "etc", "sciscipy", DFLT_CONFIG)
 
     if not os.path.exists(filename):
         raise ValueError, "can not open file: " + filename

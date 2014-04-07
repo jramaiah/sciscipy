@@ -27,19 +27,18 @@
 static int Initialize(void)
 {
     int res ;
-#ifdef _MSC_VER
-    res = StartScilab(NULL, NULL, 0) == FALSE ;
-#else
+	char sci[1024] ;
+	
     if (getenv("SCI") != NULL)
     {
         res = StartScilab(getenv("SCI"), NULL, 0) ;
     }
     else
     {
-        char sci[sci_max_len] ;
+        
         res = StartScilab(get_SCI(sci), NULL, 0) ;
     }
-#endif
+// 	#endif
 
     if (res == FALSE)
     {

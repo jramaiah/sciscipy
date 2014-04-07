@@ -8,26 +8,41 @@ import os, sys
 
 # This should be customized for specific instals
 
+def get_scilab_folder():
+	"""
+	@return: scilab root folder as defined by the SCI env variable 
+	eg: C:\Program Files\scilab-5.4.1
+	"""
+	if os.getenv("SCI") is None:
+		raise RuntimeError("YOU MUST SET A 'SCI' ENVIRONMENT VARIABLE TO POINT TO SCILAB ROOT FOLDER")
+		
+	return os.getenv("SCI")
+
 if os.name == 'nt':
-	common_include_base = r"C:\Program Files (x86)\scilab-5.2.1\modules"
+
+	#common_include_base = r"C:\Program Files\scilab-5.4.1\modules"
+	sci_root = get_scilab_folder()
+	common_include_base = os.path.join(sci_root, "modules")
 	sci_include = [
 			os.path.join(common_include_base, "core", "includes"),
 			os.path.join(common_include_base, "call_scilab", "includes"),
-			os.path.join(common_include_base, "api_scilab", "includes")
-		       ]
+			os.path.join(common_include_base, "api_scilab", "includes"),
+			os.path.join(common_include_base, "output_stream", "includes"),
+			   ]
 
-	sci_lib_dir =  [r"C:\Program Files (x86)\scilab-5.2.1\bin"]
-	sci_librairies = ['LibScilab', 'api_scilab']
-
+	sci_lib_dir =  [os.path.join(sci_root, "bin")]
+	sci_librairies = ['core', 'api_scilab', 'call_scilab', 'scilab_windows', 'dynamic_link', 'io', 'fileio', 'output_stream']
+	sci_extra_link_args = []
+        
 elif os.name == 'posix':
-	common_include_base = os.path.join("/","usr", "include", "scilab")
+	common_include_base = os.path.join("/", "usr", "include", "scilab")
 	sci_include = [ common_include_base,
 			os.path.join(common_include_base, "core"),
 			os.path.join(common_include_base, "call_scilab")
 			  ]
 	sci_lib_dir = [os.path.join("/","usr", "lib", "scilab")]
 	sci_librairies = []
-        sci_extra_link_args = ['-Wl,--no-as-needed',  '-lscilab',  '-lsciapi_scilab', '-lscicall_scilab', '-lscioutput_stream',  '-lscicore', '-lscilinear_algebra', '-lsciconsole', '-lscilocalization', '-lscipolynomials', '-lsciio', '-lscielementary_functions', '-lscisparse', '-lscihistory_manager', '-lscihistory_browser', '-lscigraphics', '-lscicompletion', '-lscifunctions', '-lsciboolean', '-lsciwindows_tools', '-lscitime', '-lscifftw', '-lsciintersci', '-lscidouble', '-lscicommons']
+	sci_extra_link_args = ['-Wl,--no-as-needed',  '-lscilab',  '-lsciapi_scilab', '-lscicall_scilab', '-lscioutput_stream',  '-lscicore', '-lscilinear_algebra', '-lsciconsole', '-lscilocalization', '-lscipolynomials', '-lsciio', '-lscielementary_functions', '-lscisparse', '-lscihistory_manager', '-lscihistory_browser', '-lscigraphics', '-lscicompletion', '-lscifunctions', '-lsciboolean', '-lsciwindows_tools', '-lscitime', '-lscifftw', '-lsciintersci', '-lscidouble', '-lscicommons']
 else:
 	raise NotImplementedError, "Only 'nt' and 'posix' are supported"
 
@@ -35,7 +50,7 @@ sci_sources = ['sciscipy.c', 'sciconv_read.c', 'sciconv_write.c', 'util.c']
 
 if os.environ.get('SCI'):
 	common_include_base_call=os.path.join("/",os.environ.get('SCI'),"..","..","include","scilab")
-        sci_include.append(os.path.join("/", common_include_base_call))
+	sci_include.append(os.path.join("/", common_include_base_call))
 	sci_include.append(os.path.join("/", common_include_base_call, "core"))
 	sci_include.append(os.path.join("/",common_include_base_call, "call_scilab"))
 	sci_lib_dir.append(os.path.join("/",os.environ.get('SCI'),"..","..","lib","scilab"))
@@ -111,13 +126,13 @@ defined function so that Scilab libraries can be reused easily in python.
 """
 setup (	name = 'sciscipy',
        	version = '1.0.0',
-	author = 'Vincent Guffens <vincent.guffens@gmail.com>, Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>',
-	url = "http://forge.scilab.org/index.php/p/sciscipy/",
-	license = "GPL",
+		author = 'Vincent Guffens <vincent.guffens@gmail.com>, Sylvestre Ledru <sylvestre.ledru@scilab-enterprises.com>',
+		url = "http://forge.scilab.org/index.php/p/sciscipy/",
+		license = "GPL",
        	description = 'Scilab binding',
-	long_description = long_description,
+		long_description = long_description,
        	ext_modules = [module1],
         py_modules = ['scilab'],
-	data_files = [('share/sciscipy', ['scilab.cfg'])],
+		data_files = [('share/sciscipy', ['scilab.cfg'])],
         cmdclass = { 'test': TestCommand}
 )

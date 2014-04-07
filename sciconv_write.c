@@ -475,12 +475,17 @@ static int write_tlist(char *name, PyObject *obj)
     int nb_item ;
     int *tlist_address ;
     SciErr sciErr ;
-    nb_item = PyDict_Size(obj) - 1 ;
-    sciErr = createNamedTList(pvApiCtx, name, nb_item, &tlist_address) ;
-    PyObject *key, *value;
+	PyObject *key, *value;
+	
+
+    
     Py_ssize_t pos = 0;
     PyObject *py_str_to_create = PyString_FromString("[") ;
     PyObject *py_value_str = PyString_FromString("") ;
+	
+    nb_item = PyDict_Size(obj) - 1 ;
+    sciErr = createNamedTList(pvApiCtx, name, nb_item, &tlist_address) ;
+	
     printf("Entering write 1\n") ;
     if (sciErr.iErr)
     {

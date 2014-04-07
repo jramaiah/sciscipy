@@ -282,7 +282,7 @@ static PyObject * read_matrix(int *addr)
 #if NUMPY == 1
         matrix = create_numpyarray(cx, m, n) ;
 #else
-        matrix = create_listmatrix(cx, NULL, m, n) ;
+        matrix = create_listmatrix(cx, NULL, m, n, 0) ;
 #endif
 
     }
@@ -312,7 +312,7 @@ static PyObject * read_matrix(int *addr)
 #if NUMPY == 1
         matrix = create_cnumpyarray(cx, cx_img, m, n) ;
 #else
-        matrix = create_listmatrix(cx, cx_img, m, n) ;
+        matrix = create_listmatrix(cx, cx_img, m, n, 1) ;
 #endif
         free(cx_img);
     }
@@ -332,20 +332,20 @@ static PyObject * read_string(int *addr)
     int m = 0, n = 0 ;
     int i = 0 ;
     int x = 0, y = 0 ;
-
+	int *piLen ;
+    PyObject *new_list ;
     char ** variable_from_scilab = NULL ;
-    SciErr sciErr;
+    SciErr sciErr ;
+	
 
     sciErr = getMatrixOfString(pvApiCtx, addr, &m, &n, NULL, NULL) ;
     if (sciErr.iErr)
     {
         PyErr_SetString(PyExc_TypeError, getErrorMessage(sciErr)) ;
         return 0;
-    }
+    } ;
 
-    int *piLen = (int*)malloc(sizeof(int) * m * n);
-
-    PyObject *new_list ;
+	piLen = (int*)malloc(sizeof(int) * m * n) ;
     sciErr = getMatrixOfString(pvApiCtx, addr, &m, &n, piLen, NULL) ;
     if (sciErr.iErr)
     {
