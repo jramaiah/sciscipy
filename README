@@ -22,7 +22,7 @@ LINUX
 ------
 
 $ ./setup.py build
-$ sudo ./setup.py install
+$ sudo -E ./setup.py install
 
 Debian/Ubuntu
 

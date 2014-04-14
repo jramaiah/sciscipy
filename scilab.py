@@ -41,7 +41,7 @@ array([ 4.])
 Internals
 =========
 
-It uses macrovar ou fun2string to discover the number of
+It uses macrovar or fun2string to discover the number of
 output args
 
 

@@ -38,7 +38,7 @@ static int Initialize(void)
         
         res = StartScilab(get_SCI(sci), NULL, 0) ;
     }
-// 	#endif
+
 
     if (res == FALSE)
     {
@@ -122,13 +122,6 @@ sciscipy_eval (PyObject *self, PyObject *args)
     }
 
     SendScilabJob(name);
-
-    	while ( ScilabHaveAGraph() )
-    	{
-    //		Py_BEGIN_ALLOW_THREADS
-    		ScilabDoOneEvent() ;
-    //		Py_END_ALLOW_THREADS
-    	}
 
     Py_INCREF(Py_None);
     return Py_None;

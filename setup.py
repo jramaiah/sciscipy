@@ -133,6 +133,6 @@ setup (	name = 'sciscipy',
 		long_description = long_description,
        	ext_modules = [module1],
         py_modules = ['scilab'],
-		data_files = [('share/sciscipy', ['scilab.cfg'])],
+		data_files = [(os.path.join(get_scilab_folder(), 'etc/sciscipy'), ['scilab.cfg'])],
         cmdclass = { 'test': TestCommand}
 )
